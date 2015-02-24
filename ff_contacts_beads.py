@@ -887,8 +887,15 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 	#process each cluster
 	#====================
 	c_sele_all = MDAnalysis.core.AtomGroup.AtomGroup([])
-	
+	nb_clusters = len[clusters]
+	c_counter = 0
 	for cluster in clusters:		
+		#display update
+		c_counter += 1
+		progress = '\r -processing frame ' + str(f_nb+1) + '/' + str(nb_frames_to_process) + ' (every ' + str(args.frames_dt) + ' from ' + str(f_start) + ' to ' + str(f_end) + ' out of ' + str(nb_frames_xtc) + ') and cluster ' + str(c_counter) + '/' + str(nb_clusters) + '   '
+		sys.stdout.flush()
+		sys.stdout.write(progress)
+
 		#create selection for current cluster and only process it if it's TM (find closest PO4 particles for each particles of clusters, if all are in the same leaflet then it's surfacic [NB: this is done at the CLUSTER level (the same criteria at the protein level would probably fail)])
 		c_sele = MDAnalysis.core.AtomGroup.AtomGroup([])
 		for p_index in cluster:
@@ -925,6 +932,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 		ff_lip_and_prot_TM = lipids_sele_ff[l_index] + c_sele_all
 		around_lip_prot_TM = ff_lip_and_prot_TM.selectAtoms("around " + str(args.cutoff_pl) + " (resname " + str(lipids_ff_info[l_index][0]) + " and resid " + str(lipids_ff_info[l_index][1]) + ")")	
 		
+		
 		#get size of cluster in contact if any
 		if around_lip_prot_TM.numberOfAtoms() > 0:			
 			tmp_size = tmp_atindices_2_csize[around_lip_prot_TM.atoms[0].number]
@@ -936,12 +944,6 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 				tmp_ctct_polar = around_lip_prot_TM.selectAtoms(residues_types_sele_string['polar']).numberOfAtoms()
 				tmp_ctct_hydrophobic = around_lip_prot_TM.selectAtoms(residues_types_sele_string['hydrophobic']).numberOfAtoms()
 				tmp_ctct_bb_only = around_lip_prot_TM.selectAtoms(residues_types_sele_string['bb_only']).numberOfAtoms()
-
-				#debug
-				tmp_sum = tmp_ctct_basic + tmp_ctct_polar + tmp_ctct_hydrophobic + tmp_ctct_bb_only
-				if tmp_sum != tmp_nbct:
-					print tmp_sum, tmp_nbct
-					sys.exit(1)
 
 				if f_time < lipids_ff_info[l_index][4] or f_time > lipids_ff_info[l_index][5]:
 					lipids_ff_contacts_outside_nb[l_index][0,tmp_size - 1] += tmp_ctct_basic
@@ -1214,8 +1216,8 @@ def graph_ff_by_type_contacts():
 	ax2.get_yaxis().tick_left()
 	ax1.set_xlim(0.5, 4.5)
 	ax2.set_xlim(0.5, 4.5)
-	ax1.set_ylim(ymin=0, ymax=60)
-	ax2.set_ylim(ymin=0, ymax=60)	
+	ax1.set_ylim(ymin=0)
+	ax2.set_ylim(ymin=0)
 	plt.setp(ax1.xaxis.get_majorticklabels(), fontsize="x-small")
 	plt.setp(ax2.xaxis.get_majorticklabels(), fontsize="x-small")
 	plt.setp(ax1.yaxis.get_majorticklabels(), fontsize="x-small")
