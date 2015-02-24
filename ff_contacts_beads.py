@@ -13,22 +13,19 @@ import os.path
 # create parser
 #=========================================================================================
 version_nb="0.0.1"
-parser = argparse.ArgumentParser(prog='ff_contacts_sizes', usage='', add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter, description=\
+parser = argparse.ArgumentParser(prog='ff_contacts_beads', usage='', add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter, description=\
 '''
 ************************************************
 v''' + version_nb + '''
 author: Jean Helie (jean.helie@bioch.ox.ac.uk)
-git: https://github.com/jhelie/ff_contacts_sizes
+git: https://github.com/jhelie/ff_contacts_beads
 DOI: 
 ************************************************
 
 [ DESCRIPTION ]
 
-This script identities the size of the TM clusters each flip-flopping lipids has been
-in contact with.
-
-The identified protein clusters are considered to be transmembrane only if the closest
-lipid headgroup neighbours to the cluster particles are all within the same leaflet.
+This script produces contact statistics between flipflopping lipids and transmembrane
+protein clusters.
 
 A file listing the flip-flopping lipids must be supplied with the --flipflops option.
 Each line of this file should follow the format (time in ns):
@@ -38,22 +35,21 @@ Each line of this file should follow the format (time in ns):
 where starting_leaflet is either 'upper' or 'lower' - e.g. 'POPC,145,lower,PO4,150,500'.
 The 'z_bead' particle is used to track the position of the lipid.
 
-
-[ REQUIREMENTS ]
-
-The following python modules are needed :
- - MDAnalysis
- - numpy
- - scipy
- - networkX
+There are 2 main outputs:
+   - contact statistics between flip-flopping lipids and TM clusters
+   - distribution profile of those contacts along the local bilayer normal
 
 
 [ NOTES ]
 
-1. It's a good idea to pre-process the trajectory first and to only output the relevant
-   particles (e.g. no water and no cholesterol).
+1. The types of contacts to take into account must be specified via --contacts. All
+   unecessary particles (eg water particles and lipids tails) should be removed from
+   the trajectory for the script to run as fast as possible.
 
-2. Identification of the bilayer leaflets can be controlled via two options.
+2. Flip-flopping lipids and their start/end times can be identified by successively
+   running the ff_detect and ff_times scripts.
+
+3. Identification of the bilayer leaflets can be controlled via two options.
    (a) beads
     By default, the particles taken into account to define leaflet depend on the
     forcefield (which can be set via the --forcefield option) and are as follows:
@@ -85,13 +81,35 @@ The following python modules are needed :
     This means that the bilayer should be as flat as possible in the gro file supplied in
     order to get a meaningful outcome.
 
-3. Proteins are detected automatically but you can specify an input file to define your
+4. (a) Proteins are detected automatically but you can specify an input file to define your
    own selection with the --proteins option.
    In this case the supplied file should contain on each line a protein selection string
    that can be passed as the argument of the MDAnalysis selectAtoms() routine - for 
    instance 'bynum 1:344'.
 
-   
+   (b) The size detected for a TM cluster can vary slightly between frames (due to
+   peripheral or 'loosely' attached peptide moving in and out the cutoff). The detected
+   size of a cluster is simply recorded and the data is just binned into each size or size
+   group without clever analysis (it would be futile to attempt to define what is 'the'
+   size of a dynamic and transient cluster).
+   The number of sampling events for which each cluster size/group has been sampled is
+   presented in the outputs so that you can judge how representative each size/group
+   actually is.
+
+   (c) Cluter sizes groups can ebe specified via --groups to bin conctact statistics.
+   A weighted average of individual cluster size data, using the number of events
+   sampled, is used to calculate groups statistics. Even when size groups are specified,
+   individual data for each size detected is also  generated. The sizes groups are defined
+   by supplying a file with the --groups option, whose lines all follow the format:
+    -> 'lower_size,upper_size, colour'
+
+   Size groups definition should follow the following rules:
+    -to specify an open ended group use 'max', e.g. '3,max'
+    -groups should be ordered by increasing size and their boundaries should not overlap
+    -boundaries are inclusive so you can specify unique size groups with 'size,size'
+    -any cluster size not falling within the specified size groups will be labeled as 'other'
+
+
 [ USAGE ]
 	
 Option	      Default  	Description                    
@@ -105,14 +123,23 @@ Option	      Default  	Description
 
 Lipids identification  
 -----------------------------------------------------
---flipflops		: input file with flipflopping lipids, see note 4
---beads			: leaflet identification technique, see note 2(a)
---leaflets	optimise: leaflet identification technique, see note 2(b)
+--flipflops		: input file with flipflopping lipids, see note 2
+--beads			: leaflet identification technique, see note 3(a)
+--leaflets	optimise: leaflet identification technique, see note 3(b)
 
 Protein clusters identification and contacts
 -----------------------------------------------------
 --proteins		: protein selection file, (optional, see note 6)
---pp_cutoff 	8	: cutoff distance for protein-protein contact (Angstrom)
+--algorithm	min	: 'cog','min' or 'density', see 'DESCRIPTION' [TO DO]
+--nx_cutoff 	6	: networkX cutoff distance for protein-protein contact (Angstrom)
+--db_radius 	20	: DBSCAN search radius (Angstrom)
+--db_neighbours	3	: DBSCAN minimum number of neighbours within a circle of radius --db_radius	
+
+ 
+Contacts profile options
+-----------------------------------------------------
+--bins 		[100]	: nb of bins along the local normal
+--normal 	[10]	: nb of --beads particles in each leaflet to determine local normal
 --pl_cutoff 	6	: cutoff distance for protein-lipid contact (Angstrom)
  
 Other options
@@ -136,9 +163,16 @@ parser.add_argument('--flipflops', nargs=1, dest='selection_file_ff', default=['
 parser.add_argument('--leaflets', nargs=1, dest='cutoff_leaflet', default=['optimise'], help=argparse.SUPPRESS)
 
 #protein options
-parser.add_argument('--algorithm', dest='m_algorithm', choices=['min'], default='min', help=argparse.SUPPRESS)
+parser.add_argument('--algorithm', dest='m_algorithm', choices=['min','cog','density'], default='min', help=argparse.SUPPRESS)
 parser.add_argument('--proteins', nargs=1, dest='selection_file_prot', default=['auto'], help=argparse.SUPPRESS)
-parser.add_argument('--pp_cutoff', nargs=1, dest='cutoff_pp', default=[8], type=float, help=argparse.SUPPRESS)
+parser.add_argument('--nx_cutoff', nargs=1, dest='nx_cutoff', default=[6], type=float, help=argparse.SUPPRESS)
+parser.add_argument('--db_radius', nargs=1, dest='dbscan_dist', default=[20], type=float, help=argparse.SUPPRESS)
+parser.add_argument('--db_neighbours', nargs=1, dest='dbscan_nb', default=[3], type=int, help=argparse.SUPPRESS)
+
+
+#profile options
+parser.add_argument('--bins', nargs=1, dest='bins', default=[100], type=int, help=argparse.SUPPRESS)
+parser.add_argument('--normal', nargs=1, dest='normal', default=[10], type=int, help=argparse.SUPPRESS)
 parser.add_argument('--pl_cutoff', nargs=1, dest='cutoff_pl', default=[6], type=float, help=argparse.SUPPRESS)
 
 #other options
@@ -159,14 +193,16 @@ args.output_folder = args.output_folder[0]
 args.t_start = args.t_start[0]
 args.t_end = args.t_end[0]
 args.frames_dt = args.frames_dt[0]
-
 #lipids identification options
 args.beadsfilename = args.beadsfilename[0]
 args.cutoff_leaflet = args.cutoff_leaflet[0]
 args.selection_file_ff = args.selection_file_ff[0]
-#radial and protein clusters options
+#protein options
 args.selection_file_prot = args.selection_file_prot[0]
-args.cutoff_pp = args.cutoff_pp[0]
+args.nx_cutoff = args.nx_cutoff[0]
+#profile options
+args.bins = args.bins[0]
+args.normal = args.normal[0]
 args.cutoff_pl = args.cutoff_pl[0]
 
 #process options
@@ -278,7 +314,7 @@ elif not os.path.isfile(args.xtcfilename):
 # create folders and log file
 #=========================================================================================
 if args.output_folder == "no":
-	args.output_folder = "ff_ctct_size_" + args.xtcfilename[:-4]
+	args.output_folder = "ff_cbeads_" + args.xtcfilename[:-4]
 
 if os.path.isdir(args.output_folder):
 	print "Error: folder " + str(args.output_folder) + " already exists, choose a different output name via -o."
@@ -288,11 +324,11 @@ else:
 	
 	#create log
 	#----------
-	filename_log=os.getcwd() + '/' + str(args.output_folder) + '/ff_contacts_sizes.log'
+	filename_log=os.getcwd() + '/' + str(args.output_folder) + '/ff_contacts_beads.log'
 	output_log=open(filename_log, 'w')		
-	output_log.write("[ff_contacts_sizes v" + str(version_nb) + "]\n")
+	output_log.write("[ff_contacts_beads v" + str(version_nb) + "]\n")
 	output_log.write("\nThis folder and its content were created using the following command:\n\n")
-	tmp_log="python ff_contacts_sizes.py"
+	tmp_log="python ff_contacts_beads.py"
 	for c in sys.argv[1:]:
 		tmp_log+=" " + c
 	output_log.write(tmp_log + "\n")
@@ -347,10 +383,12 @@ def load_MDA_universe():												#DONE
 	global frames_to_write
 	global nb_frames_to_process
 	global f_start
+	global f_end
 	global radial_bins
 	global radial_bin_max
 	global radial_radius_max
 	f_start = 0
+
 	if args.xtcfilename == "no":
 		print "\nLoading file..."
 		U = Universe(args.grofilename)
@@ -363,10 +401,11 @@ def load_MDA_universe():												#DONE
 	else:
 		print "\nLoading trajectory..."
 		U = Universe(args.grofilename, args.xtcfilename)
+		U_timestep = U.trajectory.dt
 		all_atoms = U.selectAtoms("all")
 		nb_atoms = all_atoms.numberOfAtoms()
-		nb_frames_xtc = U.trajectory.numframes
-		U.trajectory.rewind()
+		nb_frames_xtc = U.trajectory.numframes		
+
 		#sanity check
 		if U.trajectory[nb_frames_xtc-1].time/float(1000) < args.t_start:
 			print "Error: the trajectory duration (" + str(U.trajectory.time/float(1000)) + "ns) is shorted than the starting stime specified (" + str(args.t_start) + "ns)."
@@ -374,29 +413,51 @@ def load_MDA_universe():												#DONE
 		if U.trajectory.numframes < args.frames_dt:
 			print "Warning: the trajectory contains fewer frames (" + str(nb_frames_xtc) + ") than the frame step specified (" + str(args.frames_dt) + ")."
 
+		#rewind traj (very important to make sure that later the 1st frame of the xtc will be used for leaflet identification)
+		U.trajectory.rewind()
+
 		#create list of index of frames to process
-		if args.t_start > 0:
-			for ts in U.trajectory:
-				progress = '\r -skipping frame ' + str(ts.frame) + '/' + str(nb_frames_xtc) + '        '
-				sys.stdout.flush()
-				sys.stdout.write(progress)
-				if ts.time/float(1000) > args.t_start:
-					f_start = ts.frame-1
-					break
-			print ''
-		if (nb_frames_xtc - f_start)%args.frames_dt == 0:
+		if args.t_end != -1:
+			f_end = int((args.t_end*1000 - U.trajectory[0].time) / float(U_timestep))
+			if f_end < 0:
+				print "Error: the starting time specified is before the beginning of the xtc."
+				sys.exit(1)
+		else:
+			f_end = nb_frames_xtc - 1		
+		if args.t_start != -1:
+			f_start = int((args.t_start*1000 - U.trajectory[0].time) / float(U_timestep))
+			if f_start > f_end:
+				print "Error: the starting time specified is after the end of the xtc."
+				sys.exit(1)
+		if (f_end - f_start)%args.frames_dt == 0:
 			tmp_offset = 0
 		else:
 			tmp_offset = 1
-		frames_to_process = map(lambda f:f_start + args.frames_dt*f, range(0,(nb_frames_xtc - f_start)//args.frames_dt+tmp_offset))
+		frames_to_process = map(lambda f:f_start + args.frames_dt*f, range(0,(f_end - f_start)//args.frames_dt+tmp_offset))
 		nb_frames_to_process = len(frames_to_process)
-				
-	#check the leaflet selection string is valid
-	test_beads = U.selectAtoms(leaflet_sele_string)
-	if test_beads.numberOfAtoms() == 0:
-		print "Error: invalid selection string '" + str(leaflet_sele_string) + "'"
-		print "-> no particles selected."
-		sys.exit(1)
+		if args.nb_smoothing > nb_frames_to_process:
+			print "Error: the number of frames to process (" + str(nb_frames_to_process) + ") is smaller than the number  of frames to use for smoothing (" + str(args.nb_smoothing) + "). Check the -t and --smooth options."
+			sys.exit(1)
+
+		#create list of frames to write
+		if args.frames_write_dt == "no":
+			frames_to_write = [False for f_index in range(0, nb_frames_to_process)]
+		else:
+			frames_to_write = [True if (f_index % args.frames_write_dt == 0 or f_index == (f_end - f_start)//args.frames_dt) else False for f_index in range(0, nb_frames_to_process)]
+
+	#check for the presence of proteins
+	test_prot = U.selectAtoms("protein")
+	if test_prot.numberOfAtoms() == 0:
+			print "Error: no protein found in the system."
+			sys.exit(1)
+			
+	#check for the presence of lipids
+	if args.cutoff_leaflet != "no":
+		test_beads = U.selectAtoms(leaflet_sele_string)
+		if test_beads.numberOfAtoms() == 0:
+			print "Error: invalid selection string '" + str(leaflet_sele_string) + "'"
+			print "-> no lipid particles selected, check the --beads option."
+			sys.exit(1)
 
 	return
 def identify_ff():
@@ -447,6 +508,8 @@ def identify_ff():
 			lip_bead = line_content[3]
 			lip_tstart = float(line_content[4])
 			lip_tend = float(line_content[5])
+			if lip_tend == 0:
+				lip_tend = U.trajectory.totaltime/float(1000)			#this is to handle lipids which haven't finished flip-flopping
 			lipids_ff_info[l_index] = [lip_resname,lip_resnum,lip_leaflet,lip_bead,lip_tstart,lip_tend]
 						
 			#update: starting leaflets
@@ -640,7 +703,7 @@ def identify_leaflets():
 			for g in range(2, np.shape(L.groups())[0]):
 				other_lipids += L.group(g).numberOfResidues()
 			print " -found " + str(np.shape(L.groups())[0]) + " groups: " + str(leaflet_sele["upper"]["all species"].numberOfResidues()) + "(upper), " + str(leaflet_sele["lower"]["all species"].numberOfResidues()) + "(lower) and " + str(other_lipids) + " (others) lipids respectively"
-	#use cof:
+	#use cog:
 	else:
 		leaflet_sele["both"]["all species"] = U.selectAtoms(leaflet_sele_string)
 		tmp_lipids_avg_z = leaflet_sele["both"]["all species"].centerOfGeometry()[2]
@@ -668,6 +731,9 @@ def data_struct_time():
 	return
 def data_ff_contacts():
 
+	#contacts stored in matrix where types are rows and cluster sizes are columns
+	#0:basic, 1:polar, 2: hydrophobic, 3:backbone
+	
 	global lipids_ff_contacts_during_nb
 	global lipids_ff_contacts_outside_nb
 	global lipids_ff_contacts_during_pc
@@ -678,10 +744,10 @@ def data_ff_contacts():
 	lipids_ff_contacts_outside_pc = {}
 	
 	for l_index in range(0,lipids_ff_nb):
-		lipids_ff_contacts_during_nb[l_index] = np.zeros(proteins_nb)
-		lipids_ff_contacts_outside_nb[l_index] = np.zeros(proteins_nb)
-		lipids_ff_contacts_during_pc[l_index] = np.zeros(proteins_nb)
-		lipids_ff_contacts_outside_pc[l_index] = np.zeros(proteins_nb)
+		lipids_ff_contacts_during_nb[l_index] = np.zeros((4,proteins_nb))
+		lipids_ff_contacts_outside_nb[l_index] = np.zeros((4,proteins_nb))
+		lipids_ff_contacts_during_pc[l_index] = np.zeros((4,proteins_nb))
+		lipids_ff_contacts_outside_pc[l_index] = np.zeros((4,proteins_nb))
 		
 	return
 
@@ -742,7 +808,7 @@ def calculate_cog(tmp_coords, box_dim):
 def detect_clusters_connectivity(dist, box_dim):						
 	
 	#use networkx algorithm
-	connected = (dist<args.cutoff_pp)
+	connected = (dist<args.nx_cutoff)
 	network = nx.Graph(connected)
 	groups = nx.connected_components(network)
 	
@@ -759,7 +825,7 @@ def identify_ff_contacts(box_dim, f_time):
 	tmp_lip_coords = {l: leaflet_sele[l]["all species"].coordinates() for l in ["lower","upper"]}
 	
 	#identify clusters
-	#=================
+	#=================	
 	clusters = detect_clusters_connectivity(get_distances(box_dim), box_dim)
 	
 	#process each cluster
@@ -928,7 +994,7 @@ def write_xvg():
 ##########################################################################################
 
 #=========================================================================================
-#process inputs
+# process inputs
 #=========================================================================================
 #data loading
 set_lipids_beads()
@@ -944,14 +1010,12 @@ data_struct_time()
 data_ff_contacts()
 
 #=========================================================================================
-# generate data
+# process frames
 #=========================================================================================
 print "\nCalculating sizes sampled by flip-flopping lipids..."
 
 for f_index in range(0,nb_frames_to_process):
 	ts = U.trajectory[frames_to_process[f_index]]
-	if ts.time/float(1000) > args.t_end:
-		break
 	progress = '\r -processing frame ' + str(ts.frame) + '/' + str(nb_frames_xtc) + '                      '  
 	sys.stdout.flush()
 	sys.stdout.write(progress)
