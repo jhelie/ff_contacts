@@ -1015,7 +1015,7 @@ def calc_stats_ctcts():
 		#calculate distribution of contacts over sizes for each type
 		for t in range(0,4):
 			lipids_ff_contacts_during_pc[l_index][t,:] = 100 * lipids_ff_contacts_during_nb[l_index][t,:] / float(np.sum(lipids_ff_contacts_during_nb[l_index][t,:]))
-			lipids_ff_contacts_outside_pc[l_index][t,:] = 100 * lipids_ff_contacts_outside_nb[l_index] / float(np.sum(lipids_ff_contacts_outside_nb[l_index][t,:]))
+			lipids_ff_contacts_outside_pc[l_index][t,:] = 100 * lipids_ff_contacts_outside_nb[l_index][t,:] / float(np.sum(lipids_ff_contacts_outside_nb[l_index][t,:]))
 
 	for l_index in lipids_ff_l2u_index:
 		#calculate total nb of contacts
@@ -1037,7 +1037,7 @@ def calc_stats_ctcts():
 		#calculate distribution of contacts over sizes for each type
 		for t in range(0,4):
 			lipids_ff_contacts_during_pc[l_index][t,:] = 100 * lipids_ff_contacts_during_nb[l_index][t,:] / float(np.sum(lipids_ff_contacts_during_nb[l_index][t,:]))
-			lipids_ff_contacts_outside_pc[l_index][t,:] = 100 * lipids_ff_contacts_outside_nb[l_index] / float(np.sum(lipids_ff_contacts_outside_nb[l_index][t,:]))
+			lipids_ff_contacts_outside_pc[l_index][t,:] = 100 * lipids_ff_contacts_outside_nb[l_index][t,:] / float(np.sum(lipids_ff_contacts_outside_nb[l_index][t,:]))
 
 
 	# averages
@@ -1098,9 +1098,9 @@ def write_ff_by_type_contacts():
 	
 	#percent
 	#-------
-	filename=os.getcwd() + '/' + str(output_folder) + '/ff_ctcts_by_type_pc.stat'
+	filename=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_type_pc.stat'
 	output_stat = open(filename, 'w')	
-	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version) +"]\n")
+	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 	output_stat.write("\n")
 
 	#general info
@@ -1123,29 +1123,29 @@ def write_ff_by_type_contacts():
 	output_stat.write("caption: distribution of contacts (%)\n")
 	
 	#upper to lower
-	if numpy.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index)>0:
 		output_stat.write("\n")
-		output_stat.write("upper to lower (" + str(numpy.size(lipids_ff_u2l_index)) + " lipids)\n")	
+		output_stat.write("upper to lower (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
 		output_stat.write("\n")
-		output_stat.write("		Q+	polar	hphobic	BB	total\n")
+		output_stat.write("		basic	polar	hphobic	BB	total\n")
 		output_stat.write("-----------------------------------------------------\n")
 		output_stat.write("peptide (ref)	"  + str(round(protein_composition[0],1)) + "	" + str(round(protein_composition[1],1)) + "	" + str(round(protein_composition[2],1)) + "	" + str(round(protein_composition[3],1)) + "	" + str(round(np.sum(protein_composition),1)) + "\n")
-		output_stat.write("during		" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[3],1)) + "\n")
-		output_stat.write("before/after	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[3],1)) + "\n")
+		output_stat.write("during		" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[3],1)) + "	" + str(round(np.sum(lipids_ff_contacts_u2l_during_by_type_avg),1)) + "\n")
+		output_stat.write("before/after	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[3],1)) + "	" + str(round(np.sum(lipids_ff_contacts_u2l_outside_by_type_avg),1)) + "\n")
 		output_stat.write("\n")
 
 	#lower to upper	
-	if numpy.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index)>0:
 		output_stat.write("\n")
-		output_stat.write("lower to upper (" + str(numpy.size(lipids_ff_l2u_index)) + " lipids)\n")	
+		output_stat.write("lower to upper (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
 		output_stat.write("\n")
 		output_stat.write("		Q+	polar	hphobic	BB	total\n")
 		output_stat.write("-----------------------------------------------------\n")
 		output_stat.write("peptide (ref)	"  + str(round(protein_composition[0],1)) + "	" + str(round(protein_composition[1],1)) + "	" + str(round(protein_composition[2],1)) + "	" + str(round(protein_composition[3],1)) + "	" + str(round(np.sum(protein_composition),1)) + "\n")
-		output_stat.write("during		" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[3],1)) + "\n")
-		output_stat.write("before/after	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[3],1)) + "\n")
+		output_stat.write("during		" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[3],1)) + "	" + str(round(np.sum(lipids_ff_contacts_l2u_during_by_type_avg),1)) + "\n")
+		output_stat.write("before/after	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[3],1)) + "	" + str(round(np.sum(lipids_ff_contacts_l2u_outside_by_type_avg),1)) + "\n")
 		output_stat.write("\n")
 	
 	output_stat.close()
@@ -1156,46 +1156,46 @@ def graph_ff_by_type_contacts():
 	#-plot: 2 bar charts (ff u2l and l2u), 1 bar for each lipid specie
 	#-------------------------------------------------------------------
 			
-	filename_png=os.getcwd() + '/' + str(output_folder) + '/ff_ctcts_by_type_pc.png'
-	filename_svg=os.getcwd() + '/' + str(output_folder) + '/ff_ctcts_by_type_pc.svg'
+	filename_png=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_type_pc.png'
+	filename_svg=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_type_pc.svg'
 	
 	#create figure
 	#-------------
-	fig=plt.figure(figsize=(3.25, 5)) 								#1 column format
+	fig=plt.figure(figsize=(6, 5)) 								#1 column format
 	#fig.suptitle("Distribution of peptides orientation")
-	xticks_pos=numpy.arange(1,5)
+	xticks_pos=np.arange(1,5)
 	xticks_lab=['basic', 'polar', 'hydrophobic', 'backbone']
 
 	#plot data: upper to lower
 	#-------------------------
 	ax1 = fig.add_subplot(211)
 	#peptide
-	plt.bar(xticks_pos-0.375, protein_composition, width=0.25, color='w', label="peptide")	
+	plt.bar(xticks_pos-0.375, protein_composition, width=0.25, color='#C0C0C0', label="peptide")	
 	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_type_avg, width=0.25, color='k', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_type_std)
+	plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_type_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_type_std, ecolor='k')
 	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_type_avg, width=0.25, color='y', label="during", yerr = lipids_ff_contacts_u2l_outside_by_type_std)
+	plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_type_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_type_std, ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Upper to Lower", size='small')
 	fontP.set_size("small")
-	if numpy.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index)>0:
 		ax1.legend(prop=fontP)
 
 	#plot data: lower to upper
 	#-------------------------
 	ax2 = fig.add_subplot(212)
 	#peptide
-	plt.bar(xticks_pos-0.375, protein_composition, width=0.25, color='w', label="peptide")	
+	plt.bar(xticks_pos-0.375, protein_composition, width=0.25, color='#C0C0C0', label="peptide")	
 	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_type_avg, width=0.25, color='k', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_type_std)
+	plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_type_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_type_std, ecolor='k')
 	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_type_avg, width=0.25, color='y', label="during", yerr = lipids_ff_contacts_l2u_outside_by_type_std)
+	plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_type_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_type_std, ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Lower to Upper", size='small')
 	fontP.set_size("small")
-	if numpy.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index)>0:
 		ax2.legend(prop=fontP)
 
 	#legend, labels, etc
@@ -1214,10 +1214,12 @@ def graph_ff_by_type_contacts():
 	ax2.get_yaxis().tick_left()
 	ax1.set_xlim(0.5, 4.5)
 	ax2.set_xlim(0.5, 4.5)
-	ax1.set_ylim(ymin=0)
-	ax2.set_ylim(ymin=0)	
+	ax1.set_ylim(ymin=0, ymax=60)
+	ax2.set_ylim(ymin=0, ymax=60)	
 	plt.setp(ax1.xaxis.get_majorticklabels(), fontsize="x-small")
 	plt.setp(ax2.xaxis.get_majorticklabels(), fontsize="x-small")
+	plt.setp(ax1.yaxis.get_majorticklabels(), fontsize="x-small")
+	plt.setp(ax2.yaxis.get_majorticklabels(), fontsize="x-small")
 	#plt.setp(ax1.xaxis.get_majorticklabels(), rotation=60, fontsize="x-small")	
 	#plt.setp(ax2.xaxis.get_majorticklabels(), rotation=60, fontsize="x-small")
 
