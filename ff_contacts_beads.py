@@ -39,6 +39,40 @@ There are 2 main outputs:
    - contact statistics between flip-flopping lipids and TM clusters
    - distribution profile of those contacts along the local bilayer normal
 
+Detection of transmembrane protein clusters
+-------------------------------------------
+Two clustering algorithms can be used to identify protein clusters.
+->Connectivity based (relies on networkX module):
+  A protein is considered in a cluster if it is within a distance less than --nx_cutoff
+  from another protein. This means that a single protein can act as a connector between
+  two otherwise disconnected protein clusters.
+  This algorithm can be ran using either the minimum distante between proteins (default, 
+  --algorithm 'min') or the distance between their center of geometry (--algorithm 'cog').
+  The 'min' option scales as the square of the number of proteins and can thus be very
+  slow for large systems.
+
+->Density based (relies on the sklearn module and its implementation of DBSCAN):
+  A protein is considered in a cluster if is surrounded by at least --db_neighbours other
+  proteins within a radius of --db_radius.
+  This density based approach is usually less suited to the detection of protein
+  clusters but as a general rule the more compact the clusters, the smaller --db_radius
+  the higher --db_neighbours can be - for details on this algorithm see its online
+  documentation.
+  This algorithm is selected by setting the --algorithm option to 'density'.
+
+The identified protein clusters are considered to be transmembrane only if the closest
+lipid headgroup neighbours to the cluster particles are all within the same leaflet.
+In addition to the sizes identified, size groups can be defined - see note 4(c).
+
+
+[ REQUIREMENTS ]
+
+The following python modules are needed :
+ - MDAnalysis
+ - matplotlib
+ - networkX (if --algorithm set to 'min' or 'cog')
+ - sklearn (if --algorithm set to 'density')
+
 
 [ NOTES ]
 
@@ -138,8 +172,8 @@ Protein clusters identification and contacts
  
 Contacts profile options
 -----------------------------------------------------
---bins 		[100]	: nb of bins along the local normal
---normal 	[10]	: nb of --beads particles in each leaflet to determine local normal
+--bins 		100 	: nb of bins along the local normal
+--normal 	10  	: nb of --beads particles in each leaflet to determine local normal
 --pl_cutoff 	6	: cutoff distance for protein-lipid contact (Angstrom)
  
 Other options
@@ -168,7 +202,6 @@ parser.add_argument('--proteins', nargs=1, dest='selection_file_prot', default=[
 parser.add_argument('--nx_cutoff', nargs=1, dest='nx_cutoff', default=[6], type=float, help=argparse.SUPPRESS)
 parser.add_argument('--db_radius', nargs=1, dest='dbscan_dist', default=[20], type=float, help=argparse.SUPPRESS)
 parser.add_argument('--db_neighbours', nargs=1, dest='dbscan_nb', default=[3], type=int, help=argparse.SUPPRESS)
-
 
 #profile options
 parser.add_argument('--bins', nargs=1, dest='bins', default=[100], type=int, help=argparse.SUPPRESS)
@@ -200,6 +233,8 @@ args.selection_file_ff = args.selection_file_ff[0]
 #protein options
 args.selection_file_prot = args.selection_file_prot[0]
 args.nx_cutoff = args.nx_cutoff[0]
+args.dbscan_dist = args.dbscan_dist[0]
+args.dbscan_nb = args.dbscan_nb[0]
 #profile options
 args.bins = args.bins[0]
 args.normal = args.normal[0]
@@ -207,7 +242,6 @@ args.cutoff_pl = args.cutoff_pl[0]
 
 #process options
 #---------------
-
 global lipids_ff_nb
 lipids_ff_nb = 0
 	
@@ -554,8 +588,12 @@ def identify_proteins():
 	print "\nIdentifying proteins..."
 	
 	#import modules
-	global nx
-	import networkx as nx
+	if args.m_algorithm == "density":
+		global DBSCAN
+		from sklearn.cluster import DBSCAN
+	else:
+		global nx
+		import networkx as nx
 
 	#declare variables
 	global proteins_nb
@@ -565,6 +603,7 @@ def identify_proteins():
 	global proteins_boundaries
 	global proteins_nb_atoms
 	global nb_atom_per_protein	
+	global proteins_max_at_number	
 	proteins_nb = 0
 	proteins_sele = {}
 	proteins_sele_string = {}
@@ -654,7 +693,9 @@ def identify_proteins():
 			output_stat.write(proteins_sele_string[p_index] + "\n")
 		output_stat.close()
 
+	#get protein details
 	nb_atom_per_protein = proteins_sele[0].numberOfAtoms()
+	proteins_max_at_number = np.max(proteins_sele["all"].indices())
 	print ""
 
 	return
@@ -731,9 +772,33 @@ def data_struct_time():
 	return
 def data_ff_contacts():
 
-	#contacts stored in matrix where types are rows and cluster sizes are columns
-	#0:basic, 1:polar, 2: hydrophobic, 3:backbone
+	#create residues selection strings
+	global residues_types_sele_string
+	residues_types_sele_string = {}
+
+	#TO DO: make these definitions user selectable
+	type_res={}
+	type_res["basic"]=['ARG','LYS']
+	type_res["acidic"]=['ASP','GLU']
+	type_res["polar"]=['SER','THR','ASN','GLN','HIS']
+	type_res["hydrophobic"]=['VAL','ILE','LEU','MET','PHE','PRO','CYS','TYR','TRP']
+	type_res["bb_only"]=['ALA','GLY']
+	all_types = ["basic","polar","hydrophobic","bb_only"]
+
+	#create selection string for each type: residues
+	residues_types_sele_string = {}
+	for t in all_types:
+		residues_types_sele_string[t] = "resname " + str(type_res[t][0])
+		for r in type_res[t][1:]:
+			residues_types_sele_string[t] += " or resname " + str(r)
 	
+	#get protein composition
+	global protein_composition
+	protein_composition = np.zeros(4)
+	for t_index in range(0,len(all_types)):
+		protein_composition[t_index] = proteins_sele[0].selectAtoms(residues_types_sele_string[all_types[t_index]]).numberOfAtoms()/float(nb_atom_per_protein)*100
+	
+	#contacts stored in matrix where types are rows and cluster sizes are columns (#0:basic, 1:polar, 2: hydrophobic, 3:backbone)
 	global lipids_ff_contacts_during_nb
 	global lipids_ff_contacts_outside_nb
 	global lipids_ff_contacts_during_pc
@@ -813,24 +878,28 @@ def detect_clusters_connectivity(dist, box_dim):
 	groups = nx.connected_components(network)
 	
 	return groups
-def identify_ff_contacts(box_dim, f_time):
+def identify_ff_contacts(box_dim, f_time, f_nb):
 
 	global lipids_ff_contacts_during_nb
 	global lipids_ff_contacts_outside_nb
 	
-	#initialise dictionary allowing to retrieve cluster size
-	dict_protatoms_2_clustersize = {}
+	#initialise array allowing to retrieve cluster size from atom indices
+	tmp_atindices_2_csize = np.zeros(proteins_max_at_number)
 	
 	#retrieve coordinates arrays (pre-processing saves time as MDAnalysis functions are quite slow and we need to make such calls a few times)
 	tmp_lip_coords = {l: leaflet_sele[l]["all species"].coordinates() for l in ["lower","upper"]}
 	
 	#identify clusters
 	#=================	
-	clusters = detect_clusters_connectivity(get_distances(box_dim), box_dim)
+	if args.m_algorithm != "density":
+		clusters = detect_clusters_connectivity(get_distances(box_dim), box_dim)
+	else:
+		clusters = detect_clusters_density(get_distances(box_dim), box_dim)
 	
 	#process each cluster
 	#====================
 	c_sele_all = MDAnalysis.core.AtomGroup.AtomGroup([])
+	
 	for cluster in clusters:		
 		#create selection for current cluster and only process it if it's TM (find closest PO4 particles for each particles of clusters, if all are in the same leaflet then it's surfacic [NB: this is done at the CLUSTER level (the same criteria at the protein level would probably fail)])
 		c_sele = MDAnalysis.core.AtomGroup.AtomGroup([])
@@ -841,152 +910,340 @@ def identify_ff_contacts(box_dim, f_time):
 		dist_min_lower = np.min(MDAnalysis.analysis.distances.distance_array(tmp_c_sele_coordinates, tmp_lip_coords["lower"], box_dim), axis = 1)
 		dist_min_upper = np.min(MDAnalysis.analysis.distances.distance_array(tmp_c_sele_coordinates, tmp_lip_coords["upper"], box_dim), axis = 1)
 		dist = dist_min_upper - dist_min_lower
-		#store size of TM cluster
-		if np.size(dist[dist>0]) != np.size(dist) and np.size(dist[dist>0]) !=0:
-			c_size = np.size(cluster)
-			for a in c_sele.atoms:
-				dict_protatoms_2_clustersize[a.number] = c_size		 
-		#store -1 for non TM cluster
+		#case: interfacial lower
+		if np.size(dist[dist>0]) == np.size(dist):
+			tmp_atindices_2_csize[c_sele.indices()] = -1
+		#case: interfacial upper
+		elif np.size(dist[dist>0]) == 0:
+			tmp_atindices_2_csize[c_sele.indices()] = 99999				#stupidly big number
+
+		#case: TM
 		else:
-			for a in c_sele.atoms:
-				dict_protatoms_2_clustersize[a.number] = -1
+			c_size = np.size(cluster)
+			tmp_atindices_2_csize[c_sele.indices()] = c_size
 				
 	#process each ff lipid
 	#=====================
+	ff_counter = 0
 	for l_index in range(0,lipids_ff_nb):
+		
+		#display update
+		ff_counter += 1
+		progress = '\r -processing frame ' + str(f_nb+1) + '/' + str(nb_frames_to_process) + ' (every ' + str(args.frames_dt) + ' from ' + str(f_start) + ' to ' + str(f_end) + ' out of ' + str(nb_frames_xtc) + ') and flip-flopping lipid ' + str(ff_counter) + '/' + str(lipids_ff_nb) + '   '
+		sys.stdout.flush()
+		sys.stdout.write(progress)
+
 		#detect contacts
 		ff_lip_and_prot_TM = lipids_sele_ff[l_index] + c_sele_all
 		around_lip_prot_TM = ff_lip_and_prot_TM.selectAtoms("around " + str(args.cutoff_pl) + " (resname " + str(lipids_ff_info[l_index][0]) + " and resid " + str(lipids_ff_info[l_index][1]) + ")")	
 		
 		#get size of cluster in contact if any
 		if around_lip_prot_TM.numberOfAtoms() > 0:			
-			tmp_size = dict_protatoms_2_clustersize[around_lip_prot_TM.atoms[0].number]
+			tmp_size = tmp_atindices_2_csize[around_lip_prot_TM.atoms[0].number]
 			tmp_nbct = around_lip_prot_TM.numberOfAtoms()
 						
 			#store it if TM
-			if tmp_size > 0:
+			if tmp_size > 0 and tmp_size < 99999:
+				tmp_ctct_basic = around_lip_prot_TM.selectAtoms(residues_types_sele_string['basic']).numberOfAtoms()
+				tmp_ctct_polar = around_lip_prot_TM.selectAtoms(residues_types_sele_string['polar']).numberOfAtoms()
+				tmp_ctct_hydrophobic = around_lip_prot_TM.selectAtoms(residues_types_sele_string['hydrophobic']).numberOfAtoms()
+				tmp_ctct_bb_only = around_lip_prot_TM.selectAtoms(residues_types_sele_string['bb_only']).numberOfAtoms()
+
+				#debug
+				tmp_sum = tmp_basic + tmp_polar + tmp_hydrophobic + tmp_bb_only
+				if tmp_sum != tmp_nbct:
+					print tmp_sum, tmp_nbct
+					sys.exit(1)
+
 				if f_time < lipids_ff_info[l_index][4] or f_time > lipids_ff_info[l_index][5]:
-					lipids_ff_contacts_outside_nb[l_index][tmp_size - 1] += tmp_nbct
+					lipids_ff_contacts_outside_nb[l_index][0,tmp_size - 1] += tmp_ctct_basic
+					lipids_ff_contacts_outside_nb[l_index][1,tmp_size - 1] += tmp_ctct_polar
+					lipids_ff_contacts_outside_nb[l_index][2,tmp_size - 1] += tmp_ctct_hydrophobic					
+					lipids_ff_contacts_outside_nb[l_index][3,tmp_size - 1] += tmp_ctct_bb_only
 				else:
-					lipids_ff_contacts_during_nb[l_index][tmp_size - 1] += tmp_nbct
-						
+					lipids_ff_contacts_during_nb[l_index][0,tmp_size - 1] += tmp_ctct_basic
+					lipids_ff_contacts_during_nb[l_index][1,tmp_size - 1] += tmp_ctct_polar
+					lipids_ff_contacts_during_nb[l_index][2,tmp_size - 1] += tmp_ctct_hydrophobic					
+					lipids_ff_contacts_during_nb[l_index][3,tmp_size - 1] += tmp_ctct_bb_only
+					
+	return
+
+#=========================================================================================
+# statistics
+#=========================================================================================
+
+def calc_stats_ctcts():
+
+	global lipids_ff_contacts_u2l_during_tot_nb, lipids_ff_contacts_l2u_during_tot_nb
+	global lipids_ff_contacts_u2l_during_tot_nb_by_size, lipids_ff_contacts_l2u_during_tot_nb_by_size
+	global lipids_ff_contacts_u2l_during_tot_nb_by_type, lipids_ff_contacts_l2u_during_tot_nb_by_type
+	global lipids_ff_contacts_u2l_during_tot_pc_by_size, lipids_ff_contacts_l2u_during_tot_pc_by_size
+	global lipids_ff_contacts_u2l_during_tot_pc_by_type, lipids_ff_contacts_l2u_during_tot_pc_by_type
+	global lipids_ff_contacts_u2l_outside_tot_nb, lipids_ff_contacts_l2u_outside_tot_nb
+	global lipids_ff_contacts_u2l_outside_tot_nb_by_size, lipids_ff_contacts_l2u_outside_tot_nb_by_size
+	global lipids_ff_contacts_u2l_outside_tot_nb_by_type, lipids_ff_contacts_l2u_outside_tot_nb_by_type
+	global lipids_ff_contacts_u2l_outside_tot_pc_by_size, lipids_ff_contacts_l2u_outside_tot_pc_by_size
+	global lipids_ff_contacts_u2l_outside_tot_pc_by_type, lipids_ff_contacts_l2u_outside_tot_pc_by_type
+	lipids_ff_contacts_u2l_during_tot_nb = {}
+	lipids_ff_contacts_u2l_during_tot_nb_by_size = {}
+	lipids_ff_contacts_u2l_during_tot_nb_by_type = {}
+	lipids_ff_contacts_u2l_during_tot_pc_by_size = {}
+	lipids_ff_contacts_u2l_during_tot_pc_by_type = {}
+	lipids_ff_contacts_u2l_outside_tot_nb = {}
+	lipids_ff_contacts_u2l_outside_tot_nb_by_size = {}
+	lipids_ff_contacts_u2l_outside_tot_nb_by_type = {}
+	lipids_ff_contacts_u2l_outside_tot_pc_by_size = {}
+	lipids_ff_contacts_u2l_outside_tot_pc_by_type = {}
+	lipids_ff_contacts_l2u_during_tot_nb = {}
+	lipids_ff_contacts_l2u_during_tot_nb_by_size = {}
+	lipids_ff_contacts_l2u_during_tot_nb_by_type = {}
+	lipids_ff_contacts_l2u_during_tot_pc_by_size = {}
+	lipids_ff_contacts_l2u_during_tot_pc_by_type = {}
+	lipids_ff_contacts_l2u_outside_tot_nb = {}
+	lipids_ff_contacts_l2u_outside_tot_nb_by_size = {}
+	lipids_ff_contacts_l2u_outside_tot_nb_by_type = {}
+	lipids_ff_contacts_l2u_outside_tot_pc_by_size = {}
+	lipids_ff_contacts_l2u_outside_tot_pc_by_type = {}
+	
+	# for each flip-flopping lipids
+	#------------------------------
+	for l_index in lipids_ff_u2l_index:
+		#calculate total nb of contacts
+		lipids_ff_contacts_u2l_during_tot_nb[l_index] = np.sum(lipids_ff_contacts_during_nb[l_index])
+		lipids_ff_contacts_u2l_outside_tot_nb[l_index] = np.sum(lipids_ff_contacts_outside_nb[l_index])
+
+		#calculate total nb and distribution of contacts with each cluster size
+		lipids_ff_contacts_u2l_during_tot_nb_by_size[l_index] = np.sum(lipids_ff_contacts_during_nb[l_index], axis = 0)
+		lipids_ff_contacts_u2l_during_tot_pc_by_size[l_index] = lipids_ff_contacts_u2l_during_tot_nb_by_size[l_index] / float(lipids_ff_contacts_u2l_during_tot_nb[l_index]) * 100
+		lipids_ff_contacts_u2l_outside_tot_nb_by_size[l_index] = np.sum(lipids_ff_contacts_outside_nb[l_index], axis = 0)
+		lipids_ff_contacts_u2l_outside_tot_pc_by_size[l_index] = lipids_ff_contacts_u2l_outside_tot_nb_by_size[l_index] / float(lipids_ff_contacts_u2l_outside_tot_nb[l_index]) * 100
+		
+		#calculate total nb and distribution of contacts with each residue type
+		lipids_ff_contacts_u2l_during_tot_nb_by_type[l_index] = np.sum(lipids_ff_contacts_during_nb[l_index], axis = 1)
+		lipids_ff_contacts_u2l_during_tot_pc_by_type[l_index] = lipids_ff_contacts_u2l_during_tot_nb_by_type[l_index] / float(lipids_ff_contacts_u2l_during_tot_nb[l_index]) * 100
+		lipids_ff_contacts_u2l_outside_tot_nb_by_type[l_index] = np.sum(lipids_ff_contacts_outside_nb[l_index], axis = 1)
+		lipids_ff_contacts_u2l_outside_tot_pc_by_type[l_index] = lipids_ff_contacts_u2l_outside_tot_nb_by_type[l_index] / float(lipids_ff_contacts_u2l_outside_tot_nb[l_index]) * 100
+		
+		#calculate distribution of contacts over sizes for each type
+		for t in range(0,4):
+			lipids_ff_contacts_during_pc[l_index][t,:] = 100 * lipids_ff_contacts_during_nb[l_index][t,:] / float(np.sum(lipids_ff_contacts_during_nb[l_index][t,:]))
+			lipids_ff_contacts_outside_pc[l_index][t,:] = 100 * lipids_ff_contacts_outside_nb[l_index] / float(np.sum(lipids_ff_contacts_outside_nb[l_index][t,:]))
+
+	for l_index in lipids_ff_l2u_index:
+		#calculate total nb of contacts
+		lipids_ff_contacts_l2u_during_tot_nb[l_index] = np.sum(lipids_ff_contacts_during_nb[l_index])
+		lipids_ff_contacts_l2u_outside_tot_nb[l_index] = np.sum(lipids_ff_contacts_outside_nb[l_index])
+
+		#calculate total nb and distribution of contacts with each cluster size
+		lipids_ff_contacts_l2u_during_tot_nb_by_size[l_index] = np.sum(lipids_ff_contacts_during_nb[l_index], axis = 0)
+		lipids_ff_contacts_l2u_during_tot_pc_by_size[l_index] = lipids_ff_contacts_l2u_during_tot_nb_by_size[l_index] / float(lipids_ff_contacts_l2u_during_tot_nb[l_index]) * 100
+		lipids_ff_contacts_l2u_outside_tot_nb_by_size[l_index] = np.sum(lipids_ff_contacts_outside_nb[l_index], axis = 0)
+		lipids_ff_contacts_l2u_outside_tot_pc_by_size[l_index] = lipids_ff_contacts_l2u_outside_tot_nb_by_size[l_index] / float(lipids_ff_contacts_l2u_outside_tot_nb[l_index]) * 100
+		
+		#calculate total nb and distribution of contacts with each residue type
+		lipids_ff_contacts_l2u_during_tot_nb_by_type[l_index] = np.sum(lipids_ff_contacts_during_nb[l_index], axis = 1)
+		lipids_ff_contacts_l2u_during_tot_pc_by_type[l_index] = lipids_ff_contacts_l2u_during_tot_nb_by_type[l_index] / float(lipids_ff_contacts_l2u_during_tot_nb[l_index]) * 100
+		lipids_ff_contacts_l2u_outside_tot_nb_by_type[l_index] = np.sum(lipids_ff_contacts_outside_nb[l_index], axis = 1)
+		lipids_ff_contacts_l2u_outside_tot_pc_by_type[l_index] = lipids_ff_contacts_l2u_outside_tot_nb_by_type[l_index] / float(lipids_ff_contacts_l2u_outside_tot_nb[l_index]) * 100
+		
+		#calculate distribution of contacts over sizes for each type
+		for t in range(0,4):
+			lipids_ff_contacts_during_pc[l_index][t,:] = 100 * lipids_ff_contacts_during_nb[l_index][t,:] / float(np.sum(lipids_ff_contacts_during_nb[l_index][t,:]))
+			lipids_ff_contacts_outside_pc[l_index][t,:] = 100 * lipids_ff_contacts_outside_nb[l_index] / float(np.sum(lipids_ff_contacts_outside_nb[l_index][t,:]))
+
+
+	# averages
+	#---------
+	#distribution of contacts over sizes
+	global lipids_ff_contacts_u2l_during_by_size_avg, lipids_ff_contacts_u2l_during_by_size_std
+	global lipids_ff_contacts_l2u_during_by_size_avg, lipids_ff_contacts_l2u_during_by_size_std
+	global lipids_ff_contacts_u2l_outside_by_size_avg, lipids_ff_contacts_u2l_outside_by_size_std
+	global lipids_ff_contacts_l2u_outside_by_size_avg, lipids_ff_contacts_l2u_outside_by_size_std
+	lipids_ff_contacts_u2l_during_by_size_avg = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_u2l_during_by_size_std = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_l2u_during_by_size_avg = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_l2u_during_by_size_std = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_u2l_outside_by_size_avg = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_u2l_outside_by_size_std = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_l2u_outside_by_size_avg = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_l2u_outside_by_size_std = np.zeros((4,proteins_nb))
+	
+	lipids_ff_contacts_u2l_during_by_size_avg = np.average(lipids_ff_contacts_u2l_during_tot_pc_by_size.values(), axis = 0)
+	lipids_ff_contacts_u2l_during_by_size_std = np.std(lipids_ff_contacts_u2l_during_tot_pc_by_size.values(), axis = 0)
+	lipids_ff_contacts_u2l_outside_by_size_avg = np.average(lipids_ff_contacts_u2l_outside_tot_pc_by_size.values(), axis = 0)
+	lipids_ff_contacts_u2l_outside_by_size_std = np.std(lipids_ff_contacts_u2l_outside_tot_pc_by_size.values(), axis = 0)
+	lipids_ff_contacts_l2u_during_by_size_avg = np.average(lipids_ff_contacts_l2u_during_tot_pc_by_size.values(), axis = 0)
+	lipids_ff_contacts_l2u_during_by_size_std = np.std(lipids_ff_contacts_l2u_during_tot_pc_by_size.values(), axis = 0)
+	lipids_ff_contacts_l2u_outside_by_size_avg = np.average(lipids_ff_contacts_l2u_outside_tot_pc_by_size.values(), axis = 0)
+	lipids_ff_contacts_l2u_outside_by_size_std = np.std(lipids_ff_contacts_l2u_outside_tot_pc_by_size.values(), axis = 0)
+
+	#distribution of contacts over residue types
+	global lipids_ff_contacts_u2l_during_by_type_avg, lipids_ff_contacts_u2l_during_by_type_std
+	global lipids_ff_contacts_l2u_during_by_type_avg, lipids_ff_contacts_l2u_during_by_type_std
+	global lipids_ff_contacts_u2l_outside_by_type_avg, lipids_ff_contacts_u2l_outside_by_type_std
+	global lipids_ff_contacts_l2u_outside_by_type_avg, lipids_ff_contacts_l2u_outside_by_type_std
+	lipids_ff_contacts_u2l_during_by_type_avg = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_u2l_during_by_type_std = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_l2u_during_by_type_avg = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_l2u_during_by_type_std = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_u2l_outside_by_type_avg = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_u2l_outside_by_type_std = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_l2u_outside_by_type_avg = np.zeros((4,proteins_nb))
+	lipids_ff_contacts_l2u_outside_by_type_std = np.zeros((4,proteins_nb))
+
+	lipids_ff_contacts_u2l_during_by_type_avg = np.average(lipids_ff_contacts_u2l_during_tot_pc_by_type.values(), axis = 0)
+	lipids_ff_contacts_u2l_during_by_type_std = np.std(lipids_ff_contacts_u2l_during_tot_pc_by_type.values(), axis = 0)
+	lipids_ff_contacts_u2l_outside_by_type_avg = np.average(lipids_ff_contacts_u2l_outside_tot_pc_by_type.values(), axis = 0)
+	lipids_ff_contacts_u2l_outside_by_type_std = np.std(lipids_ff_contacts_u2l_outside_tot_pc_by_type.values(), axis = 0)
+	lipids_ff_contacts_l2u_during_by_type_avg = np.average(lipids_ff_contacts_l2u_during_tot_pc_by_type.values(), axis = 0)
+	lipids_ff_contacts_l2u_during_by_type_std = np.std(lipids_ff_contacts_l2u_during_tot_pc_by_type.values(), axis = 0)
+	lipids_ff_contacts_l2u_outside_by_type_avg = np.average(lipids_ff_contacts_l2u_outside_tot_pc_by_type.values(), axis = 0)
+	lipids_ff_contacts_l2u_outside_by_type_std = np.std(lipids_ff_contacts_l2u_outside_tot_pc_by_type.values(), axis = 0)
+	
 	return
 
 #=========================================================================================
 # outputs
 #=========================================================================================
 
-def write_xvg():
+def write_ff_by_type_contacts():
 	
-	for l_index in lipids_ff_u2l_index:
-		filename_xvg = os.getcwd() + '/' + str(args.output_folder) + '/u2l_' + str(lipids_ff_info[l_index][0]) + "_" + str(lipids_ff_info[l_index][1]) + '.xvg'
-		output_xvg = open(filename_xvg, 'w')
-		output_xvg.write("# [ff_contacts_sizes v" + str(version_nb) + "]\n")
-		output_xvg.write("# The data is organised as follows:\n")
-		output_xvg.write("#  -1st line: distribution (%) of contacts before/after flipflop\n")
-		output_xvg.write("#  -2nd line: distribution (%) of contacts during flipflop\n")
-		output_xvg.write("#  -3rd line: distribution (nb) of contacts before/after flipflop\n")
-		output_xvg.write("#  -4th line: distribution (nb) of contacts during flipflop\n")
-		output_xvg.write("@ title \"Evolution of bilayer thickness by lipid specie\"\n")
-		output_xvg.write("@ xaxis label \"cluster size\"\n")
-		output_xvg.write("@ yaxis label \"% of contacts\"\n")
-		output_xvg.write("@ autoscale ONREAD xaxes\n")
-		output_xvg.write("@ TYPE XY\n")
-		output_xvg.write("@ view 0.15, 0.15, 0.95, 0.85\n")
-		output_xvg.write("@ legend on\n")
-		output_xvg.write("@ legend box on\n")
-		output_xvg.write("@ legend loctype view\n")
-		output_xvg.write("@ legend 0.98, 0.8\n")
-		output_xvg.write("@ legend length 9\n")
-		output_xvg.write("@ s0 legend \"1\"\n")
-		output_xvg.write("@ s1 legend \"2\"\n")
-		output_xvg.write("@ s2 legend \"3\"\n")
-		output_xvg.write("@ s3 legend \"4\"\n")
-		output_xvg.write("@ s4 legend \"5\"\n")
-		output_xvg.write("@ s5 legend \"6\"\n")
-		output_xvg.write("@ s6 legend \"7\"\n")
-		output_xvg.write("@ s7 legend \"8\"\n")
-		output_xvg.write("@ s8 legend \"9\"\n")
-		#distribution: %
-		#---------------
-		#before/after
-		results = "0"
-		for c in range(0,9):
-			results += "	" + str(round(lipids_ff_contacts_outside_pc[l_index][c],2))
-		output_xvg.write(results + "\n")
-		#during
-		results = "1"
-		for c in range(0,9):
-			results += "	" + str(round(lipids_ff_contacts_during_pc[l_index][c],2))
-		output_xvg.write(results + "\n")
-		#distribution: nb
-		#---------------
-		#before/after
-		results = "0"
-		for c in range(0,9):
-			results += "	" + str(round(lipids_ff_contacts_outside_nb[l_index][c],2))
-		output_xvg.write(results + "\n")
-		#during
-		results = "1"
-		for c in range(0,9):
-			results += "	" + str(round(lipids_ff_contacts_during_nb[l_index][c],2))
-		output_xvg.write(results + "\n")
-		output_xvg.close()
+	#percent
+	#-------
+	filename=os.getcwd() + '/' + str(output_folder) + '/ff_ctcts_by_type_pc.stat'
+	output_stat = open(filename, 'w')	
+	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version) +"]\n")
+	output_stat.write("\n")
 
-	for l_index in lipids_ff_l2u_index:		
-		filename_xvg = os.getcwd() + '/' + str(args.output_folder) + '/l2u_' + str(lipids_ff_info[l_index][0]) + "_" + str(lipids_ff_info[l_index][1]) + '.xvg'
-		output_xvg = open(filename_xvg, 'w')
-		output_xvg.write("# [ff_contacts_sizes v" + str(version_nb) + "]\n")
-		output_xvg.write("@ title \"Evolution of bilayer thickness by lipid specie\"\n")
-		output_xvg.write("#  -1st line: distribution (%) of contacts before/after flipflop\n")
-		output_xvg.write("#  -2nd line: distribution (%) of contacts during flipflop\n")
-		output_xvg.write("#  -3rd line: distribution (nb) of contacts before/after flipflop\n")
-		output_xvg.write("#  -4th line: distribution (nb) of contacts during flipflop\n")
-		output_xvg.write("@ xaxis label \"cluster size\"\n")
-		output_xvg.write("@ yaxis label \"% of contacts\"\n")
-		output_xvg.write("@ autoscale ONREAD xaxes\n")
-		output_xvg.write("@ TYPE XY\n")
-		output_xvg.write("@ view 0.15, 0.15, 0.95, 0.85\n")
-		output_xvg.write("@ legend on\n")
-		output_xvg.write("@ legend box on\n")
-		output_xvg.write("@ legend loctype view\n")
-		output_xvg.write("@ legend 0.98, 0.8\n")
-		output_xvg.write("@ legend length 9\n")
-		output_xvg.write("@ s0 legend \"1\"\n")
-		output_xvg.write("@ s1 legend \"2\"\n")
-		output_xvg.write("@ s2 legend \"3\"\n")
-		output_xvg.write("@ s3 legend \"4\"\n")
-		output_xvg.write("@ s4 legend \"5\"\n")
-		output_xvg.write("@ s5 legend \"6\"\n")
-		output_xvg.write("@ s6 legend \"7\"\n")
-		output_xvg.write("@ s7 legend \"8\"\n")
-		output_xvg.write("@ s8 legend \"9\"\n")
-		#distribution: %
-		#---------------
-		#before/after
-		results = "0"
-		for c in range(0,9):
-			results += "	" + str(round(lipids_ff_contacts_outside_pc[l_index][c],2))
-		output_xvg.write(results + "\n")
-		#during
-		results = "1"
-		for c in range(0,9):
-			results += "	" + str(round(lipids_ff_contacts_during_pc[l_index][c],2))
-		output_xvg.write(results + "\n")
-		#distribution: nb
-		#----------------
-		#before/after
-		results = "0"
-		for c in range(0,9):
-			results += "	" + str(round(lipids_ff_contacts_outside_nb[l_index][c],2))
-		output_xvg.write(results + "\n")
-		#during
-		results = "1"
-		for c in range(0,9):
-			results += "	" + str(round(lipids_ff_contacts_during_nb[l_index][c],2))
-		output_xvg.write(results + "\n")
-		output_xvg.close()
+	#general info
+	output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+	output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+	if args.m_algorithm == "density":
+		output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+		output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+		output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+	elif args.m_algorithm == "min":
+		output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+		output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+	else:
+		output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+		output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+	output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
 
+	#caption
+	output_stat.write("\n")
+	output_stat.write("caption: distribution of contacts (%)\n")
+	
+	#upper to lower
+	if numpy.size(lipids_ff_u2l_index)>0:
+		output_stat.write("\n")
+		output_stat.write("upper to lower (" + str(numpy.size(lipids_ff_u2l_index)) + " lipids)\n")	
+		output_stat.write("==============\n")
+		output_stat.write("\n")
+		output_stat.write("		Q+	polar	hphobic	BB	total\n")
+		output_stat.write("-----------------------------------------------------\n")
+		output_stat.write("peptide (ref)	"  + str(round(protein_composition[0],1)) + "	" + str(round(protein_composition[1],1)) + "	" + str(round(protein_composition[2],1)) + "	" + str(round(protein_composition[3],1)) + "	" + str(round(np.sum(protein_composition),1)) + "\n")
+		output_stat.write("during		" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_u2l_during_by_type_avg[3],1)) + "\n")
+		output_stat.write("before/after	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_u2l_outside_by_type_avg[3],1)) + "\n")
+		output_stat.write("\n")
+
+	#lower to upper	
+	if numpy.size(lipids_ff_l2u_index)>0:
+		output_stat.write("\n")
+		output_stat.write("lower to upper (" + str(numpy.size(lipids_ff_l2u_index)) + " lipids)\n")	
+		output_stat.write("==============\n")
+		output_stat.write("\n")
+		output_stat.write("		Q+	polar	hphobic	BB	total\n")
+		output_stat.write("-----------------------------------------------------\n")
+		output_stat.write("peptide (ref)	"  + str(round(protein_composition[0],1)) + "	" + str(round(protein_composition[1],1)) + "	" + str(round(protein_composition[2],1)) + "	" + str(round(protein_composition[3],1)) + "	" + str(round(np.sum(protein_composition),1)) + "\n")
+		output_stat.write("during		" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_l2u_during_by_type_avg[3],1)) + "\n")
+		output_stat.write("before/after	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[0],1)) + "	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[1],1)) + " 	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[2],1)) + "	" + str(round(lipids_ff_contacts_l2u_outside_by_type_avg[3],1)) + "\n")
+		output_stat.write("\n")
+	
+	output_stat.close()
+def graph_ff_by_type_contacts():
+
+	#-------------------------------------------------------------------
+	#-what: distribution of ff contacts over types 
+	#-plot: 2 bar charts (ff u2l and l2u), 1 bar for each lipid specie
+	#-------------------------------------------------------------------
+			
+	filename_png=os.getcwd() + '/' + str(output_folder) + '/ff_ctcts_by_type_pc.png'
+	filename_svg=os.getcwd() + '/' + str(output_folder) + '/ff_ctcts_by_type_pc.svg'
+	
+	#create figure
+	#-------------
+	fig=plt.figure(figsize=(3.25, 5)) 								#1 column format
+	#fig.suptitle("Distribution of peptides orientation")
+	xticks_pos=numpy.arange(1,5)
+	xticks_lab=['basic', 'polar', 'hydrophobic', 'backbone']
+
+	#plot data: upper to lower
+	#-------------------------
+	ax1 = fig.add_subplot(211)
+	#peptide
+	plt.bar(xticks_pos-0.375, protein_composition, width=0.25, color='w', label="peptide")	
+	#outside
+	plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_type_avg, width=0.25, color='k', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_type_std)
+	#during
+	plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_type_avg, width=0.25, color='y', label="during", yerr = lipids_ff_contacts_u2l_outside_by_type_std)
+	plt.xticks(xticks_pos, xticks_lab, size='x-small')
+	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
+	plt.title("Upper to Lower", size='small')
+	fontP.set_size("small")
+	if numpy.size(lipids_ff_u2l_index)>0:
+		ax1.legend(prop=fontP)
+
+	#plot data: lower to upper
+	#-------------------------
+	ax2 = fig.add_subplot(212)
+	#peptide
+	plt.bar(xticks_pos-0.375, protein_composition, width=0.25, color='w', label="peptide")	
+	#outside
+	plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_type_avg, width=0.25, color='k', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_type_std)
+	#during
+	plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_type_avg, width=0.25, color='y', label="during", yerr = lipids_ff_contacts_l2u_outside_by_type_std)
+	plt.xticks(xticks_pos, xticks_lab, size='x-small')
+	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
+	plt.title("Lower to Upper", size='small')
+	fontP.set_size("small")
+	if numpy.size(lipids_ff_l2u_index)>0:
+		ax2.legend(prop=fontP)
+
+	#legend, labels, etc
+	#-------------------
+	#ax1.set_ylabel('nb of peptides', fontsize="small")
+	#ax2.set_ylabel('% of peptides', fontsize="small")
+	ax1.tick_params(axis='both', direction='out')
+	ax2.tick_params(axis='both', direction='out')
+	ax1.spines["right"].set_visible(False)								# remove unneeded axes
+	ax1.spines["top"].set_visible(False)
+	ax2.spines["right"].set_visible(False)
+	ax2.spines["top"].set_visible(False)
+	ax1.get_xaxis().tick_bottom()  										# remove unneeded ticks 
+	ax1.get_yaxis().tick_left()
+	ax2.get_xaxis().tick_bottom()  										# remove unneeded ticks 
+	ax2.get_yaxis().tick_left()
+	ax1.set_xlim(0.5, 4.5)
+	ax2.set_xlim(0.5, 4.5)
+	ax1.set_ylim(ymin=0)
+	ax2.set_ylim(ymin=0)	
+	plt.setp(ax1.xaxis.get_majorticklabels(), fontsize="x-small")
+	plt.setp(ax2.xaxis.get_majorticklabels(), fontsize="x-small")
+	#plt.setp(ax1.xaxis.get_majorticklabels(), rotation=60, fontsize="x-small")	
+	#plt.setp(ax2.xaxis.get_majorticklabels(), rotation=60, fontsize="x-small")
+
+	ax1.yaxis.set_major_locator(MaxNLocator(nbins=5, integer=True))
+	ax2.yaxis.set_major_locator(MaxNLocator(nbins=5, integer=True))
+	ax1.yaxis.get_major_formatter().set_powerlimits((-3, 3))
+
+	#save figure
+	#-----------
+	plt.subplots_adjust(left=0.1, right=0.96, hspace=0.3, top=0.92, bottom=0.07)
+	fig.savefig(filename_png)
+	fig.savefig(filename_svg)
+	plt.close()
+	
 	return
 
 ##########################################################################################
@@ -1015,12 +1272,8 @@ data_ff_contacts()
 print "\nCalculating sizes sampled by flip-flopping lipids..."
 
 for f_index in range(0,nb_frames_to_process):
-	ts = U.trajectory[frames_to_process[f_index]]
-	progress = '\r -processing frame ' + str(ts.frame) + '/' + str(nb_frames_xtc) + '                      '  
-	sys.stdout.flush()
-	sys.stdout.write(progress)
-			
 	#frame properties
+	ts = U.trajectory[frames_to_process[f_index]]
 	f_time = ts.time/float(1000)
 	f_nb = ts.frame
 	frames_nb[f_index] = f_nb
@@ -1028,7 +1281,7 @@ for f_index in range(0,nb_frames_to_process):
 	box_dim = U.trajectory.ts.dimensions
 	
 	#process ff lipids
-	identify_ff_contacts(box_dim, f_time)
+	identify_ff_contacts(box_dim, f_time, f_nb)
 	
 print ''
 
@@ -1036,9 +1289,7 @@ print ''
 # process data
 #=========================================================================================
 print "\nCalculating statistics..."
-for l_index in range(0,lipids_ff_nb):
-	lipids_ff_contacts_during_pc[l_index] = lipids_ff_contacts_during_nb[l_index] *100 / float(np.sum(lipids_ff_contacts_during_nb[l_index]))
-	lipids_ff_contacts_outside_pc[l_index] = lipids_ff_contacts_outside_nb[l_index] *100 / float(np.sum(lipids_ff_contacts_outside_nb[l_index]))
+calc_stats_ctcts()
 		
 #=========================================================================================
 # produce outputs
