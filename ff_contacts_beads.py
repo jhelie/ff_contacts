@@ -188,7 +188,7 @@ parser.add_argument('-f', nargs=1, dest='grofilename', default=['no'], help=argp
 parser.add_argument('-x', nargs=1, dest='xtcfilename', default=['no'], help=argparse.SUPPRESS)
 parser.add_argument('-o', nargs=1, dest='output_folder', default=['no'], help=argparse.SUPPRESS)
 parser.add_argument('-b', nargs=1, dest='t_start', default=[-1], type=int, help=argparse.SUPPRESS)
-parser.add_argument('-e', nargs=1, dest='t_end', default=[10000000000000], type=int, help=argparse.SUPPRESS)
+parser.add_argument('-e', nargs=1, dest='t_end', default=[-1], type=int, help=argparse.SUPPRESS)
 parser.add_argument('-t', nargs=1, dest='frames_dt', default=[1], type=int, help=argparse.SUPPRESS)
 
 #lipids identification options
@@ -337,9 +337,6 @@ if args.xtcfilename == "no":
 	elif '-e' in sys.argv:
 		print "Error: -e option specified but no xtc file specified."
 		sys.exit(1)
-	elif '--smooth' in sys.argv:
-		print "Error: --smooth option specified but no xtc file specified."
-		sys.exit(1)
 elif not os.path.isfile(args.xtcfilename):
 	print "Error: file " + str(args.xtcfilename) + " not found."
 	sys.exit(1)
@@ -466,18 +463,9 @@ def load_MDA_universe():												#DONE
 		if (f_end - f_start)%args.frames_dt == 0:
 			tmp_offset = 0
 		else:
-			tmp_offset = 1
+			tmp_offset = 1		
 		frames_to_process = map(lambda f:f_start + args.frames_dt*f, range(0,(f_end - f_start)//args.frames_dt+tmp_offset))
 		nb_frames_to_process = len(frames_to_process)
-		if args.nb_smoothing > nb_frames_to_process:
-			print "Error: the number of frames to process (" + str(nb_frames_to_process) + ") is smaller than the number  of frames to use for smoothing (" + str(args.nb_smoothing) + "). Check the -t and --smooth options."
-			sys.exit(1)
-
-		#create list of frames to write
-		if args.frames_write_dt == "no":
-			frames_to_write = [False for f_index in range(0, nb_frames_to_process)]
-		else:
-			frames_to_write = [True if (f_index % args.frames_write_dt == 0 or f_index == (f_end - f_start)//args.frames_dt) else False for f_index in range(0, nb_frames_to_process)]
 
 	#check for the presence of proteins
 	test_prot = U.selectAtoms("protein")
@@ -884,7 +872,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 	global lipids_ff_contacts_outside_nb
 	
 	#initialise array allowing to retrieve cluster size from atom indices
-	tmp_atindices_2_csize = np.zeros(proteins_max_at_number)
+	tmp_atindices_2_csize = np.zeros(proteins_max_at_number+1)
 	
 	#retrieve coordinates arrays (pre-processing saves time as MDAnalysis functions are quite slow and we need to make such calls a few times)
 	tmp_lip_coords = {l: leaflet_sele[l]["all species"].coordinates() for l in ["lower","upper"]}
@@ -950,7 +938,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 				tmp_ctct_bb_only = around_lip_prot_TM.selectAtoms(residues_types_sele_string['bb_only']).numberOfAtoms()
 
 				#debug
-				tmp_sum = tmp_basic + tmp_polar + tmp_hydrophobic + tmp_bb_only
+				tmp_sum = tmp_ctct_basic + tmp_ctct_polar + tmp_ctct_hydrophobic + tmp_ctct_bb_only
 				if tmp_sum != tmp_nbct:
 					print tmp_sum, tmp_nbct
 					sys.exit(1)
@@ -1295,7 +1283,8 @@ calc_stats_ctcts()
 # produce outputs
 #=========================================================================================
 print "\nWriting outputs..."
-write_xvg()
+write_ff_by_type_contacts()
+graph_ff_by_type_contacts()
 					
 #=========================================================================================
 # exit
