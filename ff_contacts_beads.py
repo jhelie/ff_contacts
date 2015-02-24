@@ -404,7 +404,7 @@ def set_lipids_beads():
 			leaflet_sele_string = lines[0]
 
 	return
-def load_MDA_universe():												#DONE
+def load_MDA_universe():
 	
 	global U
 	global all_atoms
@@ -866,6 +866,21 @@ def detect_clusters_connectivity(dist, box_dim):
 	groups = nx.connected_components(network)
 	
 	return groups
+def detect_clusters_density(dist, box_dim):
+	
+	#run DBSCAN algorithm
+	dbscan_output = DBSCAN(eps = args.dbscan_dist, metric = 'precomputed', min_samples = args.dbscan_nb).fit(dist)
+
+	#build 'groups' structure i.e. a list whose element are all the clusters identified
+	groups = []
+	for c_lab in np.unique(dbscan_output.labels_):
+		tmp_pos = np.argwhere(dbscan_output.labels_ == c_lab)
+		if c_lab == -1:
+			groups += map(lambda p:p[0] , tmp_pos)
+		else:
+			groups.append(map(lambda p:p[0] , tmp_pos))
+
+	return groups
 def identify_ff_contacts(box_dim, f_time, f_nb):
 
 	global lipids_ff_contacts_during_nb
@@ -887,12 +902,12 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 	#process each cluster
 	#====================
 	c_sele_all = MDAnalysis.core.AtomGroup.AtomGroup([])
-	nb_clusters = len[clusters]
+	nb_clusters = len(clusters)
 	c_counter = 0
 	for cluster in clusters:		
 		#display update
 		c_counter += 1
-		progress = '\r -processing frame ' + str(f_nb+1) + '/' + str(nb_frames_to_process) + ' (every ' + str(args.frames_dt) + ' from ' + str(f_start) + ' to ' + str(f_end) + ' out of ' + str(nb_frames_xtc) + ') and cluster ' + str(c_counter) + '/' + str(nb_clusters) + '   '
+		progress = '\r -processing frame ' + str(f_nb+1) + '/' + str(nb_frames_to_process) + ' (every ' + str(args.frames_dt) + ' from ' + str(f_start) + ' to ' + str(f_end) + ' out of ' + str(nb_frames_xtc) + ') and cluster ' + str(c_counter) + '/' + str(nb_clusters) + '              '
 		sys.stdout.flush()
 		sys.stdout.write(progress)
 
