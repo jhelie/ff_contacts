@@ -786,6 +786,10 @@ def data_ff_contacts():
 	for t_index in range(0,len(all_types)):
 		protein_composition[t_index] = proteins_sele[0].selectAtoms(residues_types_sele_string[all_types[t_index]]).numberOfAtoms()/float(nb_atom_per_protein)*100
 	
+	#structure for proteins cluster distribution
+	global protein_TM_distribution
+	protein_TM_distribution = np.zeros(proteins_nb)
+	
 	#contacts stored in matrix where types are rows and cluster sizes are columns (#0:basic, 1:polar, 2: hydrophobic, 3:backbone)
 	global lipids_ff_contacts_during_nb
 	global lipids_ff_contacts_outside_nb
@@ -883,6 +887,7 @@ def detect_clusters_density(dist, box_dim):
 	return groups
 def identify_ff_contacts(box_dim, f_time, f_nb):
 
+	global protein_TM_distribution
 	global lipids_ff_contacts_during_nb
 	global lipids_ff_contacts_outside_nb
 	
@@ -930,6 +935,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 		#case: TM
 		else:
 			c_size = np.size(cluster)
+			protein_TM_distribution[c_size-1] += c_size
 			tmp_atindices_2_csize[c_sele.indices()] = c_size
 				
 	#process each ff lipid
@@ -979,6 +985,11 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 
 def calc_stats_ctcts():
 
+	#calculate TM proteins distribution
+	global protein_TM_distribution
+	protein_TM_distribution = protein_TM_distribution / float(np.sum(protein_TM_distribution)) * 100
+	protein_TM_distribution = protein_TM_distribution[0:np.amax(np.nonzero(protein_TM_distribution))+1]
+	
 	global lipids_ff_contacts_u2l_during_tot_nb, lipids_ff_contacts_l2u_during_tot_nb
 	global lipids_ff_contacts_u2l_during_tot_nb_by_size, lipids_ff_contacts_l2u_during_tot_nb_by_size
 	global lipids_ff_contacts_u2l_during_tot_nb_by_type, lipids_ff_contacts_l2u_during_tot_nb_by_type
@@ -1064,14 +1075,6 @@ def calc_stats_ctcts():
 	global lipids_ff_contacts_l2u_during_by_size_avg, lipids_ff_contacts_l2u_during_by_size_std
 	global lipids_ff_contacts_u2l_outside_by_size_avg, lipids_ff_contacts_u2l_outside_by_size_std
 	global lipids_ff_contacts_l2u_outside_by_size_avg, lipids_ff_contacts_l2u_outside_by_size_std
-	lipids_ff_contacts_u2l_during_by_size_avg = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_u2l_during_by_size_std = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_l2u_during_by_size_avg = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_l2u_during_by_size_std = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_u2l_outside_by_size_avg = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_u2l_outside_by_size_std = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_l2u_outside_by_size_avg = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_l2u_outside_by_size_std = np.zeros((4,proteins_nb))
 	
 	lipids_ff_contacts_u2l_during_by_size_avg = np.average(lipids_ff_contacts_u2l_during_tot_pc_by_size.values(), axis = 0)
 	lipids_ff_contacts_u2l_during_by_size_std = np.std(lipids_ff_contacts_u2l_during_tot_pc_by_size.values(), axis = 0)
@@ -1087,14 +1090,6 @@ def calc_stats_ctcts():
 	global lipids_ff_contacts_l2u_during_by_type_avg, lipids_ff_contacts_l2u_during_by_type_std
 	global lipids_ff_contacts_u2l_outside_by_type_avg, lipids_ff_contacts_u2l_outside_by_type_std
 	global lipids_ff_contacts_l2u_outside_by_type_avg, lipids_ff_contacts_l2u_outside_by_type_std
-	lipids_ff_contacts_u2l_during_by_type_avg = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_u2l_during_by_type_std = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_l2u_during_by_type_avg = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_l2u_during_by_type_std = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_u2l_outside_by_type_avg = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_u2l_outside_by_type_std = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_l2u_outside_by_type_avg = np.zeros((4,proteins_nb))
-	lipids_ff_contacts_l2u_outside_by_type_std = np.zeros((4,proteins_nb))
 
 	lipids_ff_contacts_u2l_during_by_type_avg = np.average(lipids_ff_contacts_u2l_during_tot_pc_by_type.values(), axis = 0)
 	lipids_ff_contacts_u2l_during_by_type_std = np.std(lipids_ff_contacts_u2l_during_tot_pc_by_type.values(), axis = 0)
@@ -1111,7 +1106,7 @@ def calc_stats_ctcts():
 # outputs
 #=========================================================================================
 
-def write_ff_by_type_contacts():
+def write_ff_ctcts_by_type():
 	
 	#percent
 	#-------
@@ -1166,11 +1161,11 @@ def write_ff_by_type_contacts():
 		output_stat.write("\n")
 	
 	output_stat.close()
-def graph_ff_by_type_contacts():
+def graph_ff_ctcts_by_type():
 
 	#-------------------------------------------------------------------
-	#-what: distribution of ff contacts over types 
-	#-plot: 2 bar charts (ff u2l and l2u), 1 bar for each lipid specie
+	#-what: distribution of ff contacts over residue types 
+	#-plot: 2 bar charts (ff u2l and l2u) each with 3 bars (peptide, before/after, during) for each residue type
 	#-------------------------------------------------------------------
 			
 	filename_png=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_type_pc.png'
@@ -1253,6 +1248,96 @@ def graph_ff_by_type_contacts():
 	
 	return
 
+def graph_ff_ctcts_by_size():
+
+	#-------------------------------------------------------------------
+	#-what: distribution of ff contacts over cluster size
+	#-plot: 2 bar charts (ff u2l and l2u) each with 3 bars (peptide, before/after, during) for each cluster size
+	#-------------------------------------------------------------------
+			
+	filename_png=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_size_pc.png'
+	filename_svg=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_size_pc.svg'
+	
+	#determine max cluster size sampled
+	tmp_max_size = np.amax([np.amax(np.nonzero(lipids_ff_contacts_u2l_during_by_size_avg)),np.amax(np.nonzero(lipids_ff_contacts_l2u_during_by_size_avg)),np.amax(np.nonzero(lipids_ff_contacts_u2l_outside_by_size_avg)),np.amax(np.nonzero(lipids_ff_contacts_l2u_outside_by_size_avg))]) + 1
+	
+	#create figure
+	#-------------
+	fig=plt.figure(figsize=(6, 5)) 								#1 column format
+	#fig.suptitle("Distribution of peptides orientation")
+	xticks_pos=np.arange(1,tmp_max_size+1)
+	xticks_lab=[str(c_size) for c_size in range(1, tmp_max_size+1)]
+
+	#plot data: upper to lower
+	#-------------------------
+	ax1 = fig.add_subplot(211)
+	#peptide
+	plt.bar(xticks_pos-0.375, protein_TM_distribution, width=0.25, color='#C0C0C0', label="peptide")	
+	#outside
+	plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_size_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_size_std, ecolor='k')
+	#during
+	plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_size_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_size_std, ecolor='k')
+	plt.xticks(xticks_pos, xticks_lab, size='x-small')
+	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
+	plt.title("Upper to Lower", size='small')
+	fontP.set_size("small")
+	if np.size(lipids_ff_u2l_index)>0:
+		ax1.legend(prop=fontP)
+
+	#plot data: lower to upper
+	#-------------------------
+	ax2 = fig.add_subplot(212)
+	#peptide
+	plt.bar(xticks_pos-0.375, protein_TM_distribution, width=0.25, color='#C0C0C0', label="peptide")	
+	#outside
+	plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_size_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_size_std, ecolor='k')
+	#during
+	plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_size_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_size_std, ecolor='k')
+	plt.xticks(xticks_pos, xticks_lab, size='x-small')
+	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
+	plt.title("Lower to Upper", size='small')
+	fontP.set_size("small")
+	if np.size(lipids_ff_l2u_index)>0:
+		ax2.legend(prop=fontP)
+
+	#legend, labels, etc
+	#-------------------
+	#ax1.set_ylabel('nb of peptides', fontsize="small")
+	#ax2.set_ylabel('% of peptides', fontsize="small")
+	ax1.tick_params(axis='both', direction='out')
+	ax2.tick_params(axis='both', direction='out')
+	ax1.spines["right"].set_visible(False)								# remove unneeded axes
+	ax1.spines["top"].set_visible(False)
+	ax2.spines["right"].set_visible(False)
+	ax2.spines["top"].set_visible(False)
+	ax1.get_xaxis().tick_bottom()  										# remove unneeded ticks 
+	ax1.get_yaxis().tick_left()
+	ax2.get_xaxis().tick_bottom()  										# remove unneeded ticks 
+	ax2.get_yaxis().tick_left()
+	ax1.set_xlim(0.5, tmp_max_size + 0.5)
+	ax2.set_xlim(0.5, tmp_max_size + 0.5)
+	ax1.set_ylim(ymin=0)
+	ax2.set_ylim(ymin=0)
+	plt.setp(ax1.xaxis.get_majorticklabels(), fontsize="x-small")
+	plt.setp(ax2.xaxis.get_majorticklabels(), fontsize="x-small")
+	plt.setp(ax1.yaxis.get_majorticklabels(), fontsize="x-small")
+	plt.setp(ax2.yaxis.get_majorticklabels(), fontsize="x-small")
+	#plt.setp(ax1.xaxis.get_majorticklabels(), rotation=60, fontsize="x-small")	
+	#plt.setp(ax2.xaxis.get_majorticklabels(), rotation=60, fontsize="x-small")
+
+	ax1.yaxis.set_major_locator(MaxNLocator(nbins=5, integer=True))
+	ax2.yaxis.set_major_locator(MaxNLocator(nbins=5, integer=True))
+	ax1.yaxis.get_major_formatter().set_powerlimits((-3, 3))
+
+	#save figure
+	#-----------
+	plt.subplots_adjust(left=0.1, right=0.96, hspace=0.3, top=0.92, bottom=0.07)
+	fig.savefig(filename_png)
+	fig.savefig(filename_svg)
+	plt.close()
+	
+	return
+
 ##########################################################################################
 # ALGORITHM
 ##########################################################################################
@@ -1302,9 +1387,10 @@ calc_stats_ctcts()
 # produce outputs
 #=========================================================================================
 print "\nWriting outputs..."
-write_ff_by_type_contacts()
-graph_ff_by_type_contacts()
-					
+write_ff_ctcts_by_type()
+graph_ff_ctcts_by_type()
+graph_ff_ctcts_by_size()
+
 #=========================================================================================
 # exit
 #=========================================================================================
