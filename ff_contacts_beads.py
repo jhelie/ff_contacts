@@ -1928,7 +1928,7 @@ def write_ff_ctcts_by_group():
 	#details: u2l
 	#============
 	if np.size(lipids_ff_u2l_index)>0:
-		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc_u2l.stat'
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_group/ff_ctcts_by_group_pc_u2l.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		output_stat.write("\n")
@@ -1950,7 +1950,7 @@ def write_ff_ctcts_by_group():
 	
 		#caption
 		output_stat.write("\n")
-		output_stat.write("caption: total nb of contacts with each cluster size for lipids flip-flopping from the upper to the lower leaflet (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")
+		output_stat.write("caption: total nb of contacts with each cluster size group for lipids flip-flopping from the upper to the lower leaflet (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")
 	
 		#before/after
 		output_stat.write("\n")
@@ -2016,7 +2016,7 @@ def write_ff_ctcts_by_group():
 	
 		#caption
 		output_stat.write("\n")
-		output_stat.write("caption: total nb of contacts with each cluster size for lipids flip-flopping from the lower to the upper leaflet (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")
+		output_stat.write("caption: total nb of contacts with each cluster size group for lipids flip-flopping from the lower to the upper leaflet (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")
 	
 		#before/after
 		output_stat.write("\n")
