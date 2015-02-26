@@ -358,6 +358,10 @@ if os.path.isdir(args.output_folder):
 	sys.exit(1)
 else:
 	os.mkdir(args.output_folder)
+	os.mkdir(args.output_folder + '/by_size')
+	os.mkdir(args.output_folder + '/by_type')
+	if args.cluster_groups_file != "no":
+		os.mkdir(args.output_folder + '/by_group')
 	
 	#create log
 	#----------
@@ -1316,7 +1320,7 @@ def write_ff_ctcts_by_type():
 	
 	#percent
 	#-------
-	filename=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_type_pc.stat'
+	filename=os.getcwd() + '/' + str(args.output_folder) + '/by_type/ff_ctcts_by_type_pc.stat'
 	output_stat = open(filename, 'w')	
 	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 	output_stat.write("\n")
@@ -1374,8 +1378,8 @@ def graph_ff_ctcts_by_type():
 	#-plot: 2 bar charts (ff u2l and l2u) each with 3 bars (peptide, before/after, during) for each residue type
 	#-------------------------------------------------------------------
 			
-	filename_png=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_type_pc.png'
-	filename_svg=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_type_pc.svg'
+	filename_png=os.getcwd() + '/' + str(args.output_folder) + '/by_type/ff_ctcts_by_type_pc.png'
+	filename_svg=os.getcwd() + '/' + str(args.output_folder) + '/by_type/ff_ctcts_by_type_pc.svg'
 	
 	#create figure
 	#-------------
@@ -1459,7 +1463,7 @@ def write_ff_ctcts_by_size():
 	
 	#percent
 	#-------
-	filename=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_size_pc.stat'
+	filename=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc.stat'
 	output_stat = open(filename, 'w')	
 	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 	output_stat.write("\n")
@@ -1539,8 +1543,8 @@ def graph_ff_ctcts_by_size():
 	#-plot: 2 bar charts (ff u2l and l2u) each with 3 bars (peptide, before/after, during) for each cluster size
 	#-------------------------------------------------------------------
 			
-	filename_png=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_size_pc.png'
-	filename_svg=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_size_pc.svg'
+	filename_png=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc.png'
+	filename_svg=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc.svg'
 		
 	#create figure
 	#-------------
@@ -1624,7 +1628,7 @@ def write_ff_ctcts_by_group():
 	
 	#percent
 	#-------
-	filename=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_group_pc.stat'
+	filename=os.getcwd() + '/' + str(args.output_folder) + '/by_group/ff_ctcts_by_group_pc.stat'
 	output_stat = open(filename, 'w')	
 	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 	output_stat.write("\n")
@@ -1704,8 +1708,8 @@ def graph_ff_ctcts_by_group():
 	#-plot: 2 bar charts (ff u2l and l2u) each with 3 bars (peptide, before/after, during) for each cluster group
 	#-------------------------------------------------------------------
 			
-	filename_png=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_group_pc.png'
-	filename_svg=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_group_pc.svg'
+	filename_png=os.getcwd() + '/' + str(args.output_folder) + '/by_group/ff_ctcts_by_group_pc.png'
+	filename_svg=os.getcwd() + '/' + str(args.output_folder) + '/by_group/ff_ctcts_by_group_pc.svg'
 		
 	#create figure
 	#-------------
