@@ -1349,7 +1349,6 @@ def write_ff_ctcts_by_type():
 		output_stat.write("\n")
 		output_stat.write("upper to lower (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
-		output_stat.write("\n")
 		output_stat.write("		basic	polar	hphobic	BB	total\n")
 		output_stat.write("-----------------------------------------------------\n")
 		output_stat.write("peptide (ref)	"  + str(round(protein_composition[0],1)) + "	" + str(round(protein_composition[1],1)) + "	" + str(round(protein_composition[2],1)) + "	" + str(round(protein_composition[3],1)) + "	" + str(round(np.sum(protein_composition),1)) + "\n")
@@ -1362,7 +1361,6 @@ def write_ff_ctcts_by_type():
 		output_stat.write("\n")
 		output_stat.write("lower to upper (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
-		output_stat.write("\n")
 		output_stat.write("		Q+	polar	hphobic	BB	total\n")
 		output_stat.write("-----------------------------------------------------\n")
 		output_stat.write("peptide (ref)	"  + str(round(protein_composition[0],1)) + "	" + str(round(protein_composition[1],1)) + "	" + str(round(protein_composition[2],1)) + "	" + str(round(protein_composition[3],1)) + "	" + str(round(np.sum(protein_composition),1)) + "\n")
@@ -1402,7 +1400,6 @@ def write_ff_ctcts_by_type():
 		output_stat.write("\n")
 		output_stat.write("before/after\n")	
 		output_stat.write("============\n")
-		output_stat.write("\n")
 		output_stat.write("		basic	polar	hphobic	BB	total\n")
 		output_stat.write("-----------------------------------------------------\n")
 		for l_index in lipids_ff_u2l_index:
@@ -1413,7 +1410,6 @@ def write_ff_ctcts_by_type():
 		output_stat.write("\n")
 		output_stat.write("during\n")	
 		output_stat.write("======\n")
-		output_stat.write("\n")
 		output_stat.write("		basic	polar	hphobic	BB	total\n")
 		output_stat.write("-----------------------------------------------------\n")
 		for l_index in lipids_ff_u2l_index:
@@ -1452,7 +1448,6 @@ def write_ff_ctcts_by_type():
 		output_stat.write("\n")
 		output_stat.write("before/after\n")	
 		output_stat.write("============\n")
-		output_stat.write("\n")
 		output_stat.write("		basic	polar	hphobic	BB	total\n")
 		output_stat.write("-----------------------------------------------------\n")
 		for l_index in lipids_ff_l2u_index:
@@ -1463,7 +1458,6 @@ def write_ff_ctcts_by_type():
 		output_stat.write("\n")
 		output_stat.write("during\n")	
 		output_stat.write("======\n")
-		output_stat.write("\n")
 		output_stat.write("		basic	polar	hphobic	BB	total\n")
 		output_stat.write("-----------------------------------------------------\n")
 		for l_index in lipids_ff_l2u_index:
@@ -1472,8 +1466,6 @@ def write_ff_ctcts_by_type():
 		output_stat.close()
 
 	return
-	
-	
 def graph_ff_ctcts_by_type():
 
 	#-------------------------------------------------------------------
@@ -1564,8 +1556,8 @@ def graph_ff_ctcts_by_type():
 #contacts distribution over cluster sizes
 def write_ff_ctcts_by_size():
 	
-	#percent
-	#-------
+	#averages
+	#========
 	filename=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc.stat'
 	output_stat = open(filename, 'w')	
 	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -1595,7 +1587,6 @@ def write_ff_ctcts_by_size():
 		output_stat.write("\n")
 		output_stat.write("upper to lower (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
-		output_stat.write("\n")
 		tmp_title1 = "		"
 		tmp_title2 = "----------------"
 		tmp_pep = "peptide (ref)	"
@@ -1619,7 +1610,6 @@ def write_ff_ctcts_by_size():
 		output_stat.write("\n")
 		output_stat.write("lower to upper (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
-		output_stat.write("\n")
 		tmp_title1 = "		"
 		tmp_title2 = "----------------"
 		tmp_pep = "peptide (ref)	"
@@ -1637,8 +1627,140 @@ def write_ff_ctcts_by_size():
 		output_stat.write(tmp_dur + "(" + str(round(np.sum(lipids_ff_contacts_l2u_during_by_size_avg),1)) + ")\n")
 		output_stat.write(tmp_out + "(" + str(round(np.sum(lipids_ff_contacts_l2u_outside_by_size_avg),1)) + ")\n")
 		output_stat.write("\n")
-	
 	output_stat.close()
+
+	#details: u2l
+	#============
+	if np.size(lipids_ff_u2l_index)>0:
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc_u2l.stat'
+		output_stat = open(filename, 'w')	
+		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
+		output_stat.write("\n")
+	
+		#general info
+		output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+		output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+		if args.m_algorithm == "density":
+			output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+			output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+			output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+		elif args.m_algorithm == "min":
+			output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		else:
+			output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
+	
+		#caption
+		output_stat.write("\n")
+		output_stat.write("caption: total nb of contacts with each cluster size for lipids flip-flopping from the upper to the lower leaflet (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")
+	
+		#before/after
+		output_stat.write("\n")
+		output_stat.write("before/after\n")	
+		output_stat.write("============\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		for c in range(0, protein_max_size_sampled):
+			tmp_title1 += str(c+1) + "	"
+			tmp_title2 += "--------"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		for l_index in lipids_ff_u2l_index:
+			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
+			for c in range(0, protein_max_size_sampled):
+				tmp_lip += str(lipids_ff_contacts_u2l_outside_tot_nb_by_size[l_index][c]) + "	"
+			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_u2l_outside_tot_nb_by_size[l_index])) + ")\n")
+		output_stat.write("\n")
+
+		#during
+		output_stat.write("\n")
+		output_stat.write("during\n")	
+		output_stat.write("======\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		for c in range(0, protein_max_size_sampled):
+			tmp_title1 += str(c+1) + "	"
+			tmp_title2 += "--------"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		for l_index in lipids_ff_u2l_index:
+			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
+			for c in range(0, protein_max_size_sampled):
+				tmp_lip += str(lipids_ff_contacts_u2l_during_tot_nb_by_size[l_index][c]) + "	"
+			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_u2l_during_tot_nb_by_size[l_index])) + ")\n")
+		output_stat.write("\n")
+		output_stat.close()
+	
+	#details: l2u
+	#============
+	if np.size(lipids_ff_l2u_index)>0:
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc_l2u.stat'
+		output_stat = open(filename, 'w')	
+		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
+		output_stat.write("\n")
+	
+		#general info
+		output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+		output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+		if args.m_algorithm == "density":
+			output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+			output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+			output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+		elif args.m_algorithm == "min":
+			output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		else:
+			output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
+	
+		#caption
+		output_stat.write("\n")
+		output_stat.write("caption: total nb of contacts with each cluster size for lipids flip-flopping from the lower to the upper leaflet (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")
+	
+		#before/after
+		output_stat.write("\n")
+		output_stat.write("before/after\n")	
+		output_stat.write("============\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		for c in range(0, protein_max_size_sampled):
+			tmp_title1 += str(c+1) + "	"
+			tmp_title2 += "--------"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		for l_index in lipids_ff_l2u_index:
+			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
+			for c in range(0, protein_max_size_sampled):
+				tmp_lip += str(lipids_ff_contacts_l2u_outside_tot_nb_by_size[l_index][c]) + "	"
+			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_l2u_outside_tot_nb_by_size[l_index])) + ")\n")
+		output_stat.write("\n")
+
+		#during
+		output_stat.write("\n")
+		output_stat.write("during\n")	
+		output_stat.write("======\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		for c in range(0, protein_max_size_sampled):
+			tmp_title1 += str(c+1) + "	"
+			tmp_title2 += "--------"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		for l_index in lipids_ff_l2u_index:
+			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
+			for c in range(0, protein_max_size_sampled):
+				tmp_lip += str(lipids_ff_contacts_l2u_during_tot_nb_by_size[l_index][c]) + "	"
+			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_l2u_during_tot_nb_by_size[l_index])) + ")\n")
+		output_stat.write("\n")
+		output_stat.close()
+
 	return
 def graph_ff_ctcts_by_size():
 
@@ -1730,8 +1852,8 @@ def graph_ff_ctcts_by_size():
 #contacts distribution over cluster groups
 def write_ff_ctcts_by_group():
 	
-	#percent
-	#-------
+	#averages
+	#========
 	filename=os.getcwd() + '/' + str(args.output_folder) + '/by_group/ff_ctcts_by_group_pc.stat'
 	output_stat = open(filename, 'w')	
 	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -1761,7 +1883,6 @@ def write_ff_ctcts_by_group():
 		output_stat.write("\n")
 		output_stat.write("upper to lower (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
-		output_stat.write("\n")
 		tmp_title1 = "		"
 		tmp_title2 = "----------------"
 		tmp_pep = "peptide (ref)	"
@@ -1782,7 +1903,6 @@ def write_ff_ctcts_by_group():
 
 	#lower to upper	
 	if np.size(lipids_ff_l2u_index)>0:
-		output_stat.write("\n")
 		output_stat.write("lower to upper (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
 		output_stat.write("\n")
@@ -1803,13 +1923,145 @@ def write_ff_ctcts_by_group():
 		output_stat.write(tmp_dur + "(" + str(round(np.sum(lipids_ff_contacts_l2u_during_by_size_group_avg),1)) + ")\n")
 		output_stat.write(tmp_out + "(" + str(round(np.sum(lipids_ff_contacts_l2u_outside_by_size_group_avg),1)) + ")\n")
 		output_stat.write("\n")
-	
 	output_stat.close()
+
+	#details: u2l
+	#============
+	if np.size(lipids_ff_u2l_index)>0:
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc_u2l.stat'
+		output_stat = open(filename, 'w')	
+		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
+		output_stat.write("\n")
+	
+		#general info
+		output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+		output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+		if args.m_algorithm == "density":
+			output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+			output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+			output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+		elif args.m_algorithm == "min":
+			output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		else:
+			output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
+	
+		#caption
+		output_stat.write("\n")
+		output_stat.write("caption: total nb of contacts with each cluster size for lipids flip-flopping from the upper to the lower leaflet (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")
+	
+		#before/after
+		output_stat.write("\n")
+		output_stat.write("before/after\n")	
+		output_stat.write("============\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		for g in range(0, protein_max_size_sampled):
+			tmp_title1 += str(groups_labels[g]) + "	"
+			tmp_title2 += "--------"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		for l_index in lipids_ff_u2l_index:
+			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
+			for g in range(0, protein_max_size_sampled):
+				tmp_lip += str(lipids_ff_contacts_u2l_outside_tot_nb_by_size_group[l_index][g]) + "	"
+			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_u2l_outside_tot_nb_by_size_group[l_index])) + ")\n")
+		output_stat.write("\n")
+
+		#during
+		output_stat.write("\n")
+		output_stat.write("during\n")	
+		output_stat.write("======\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		for g in range(0, protein_max_size_sampled):
+			tmp_title1 += str(groups_labels[g]) + "	"
+			tmp_title2 += "--------"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		for l_index in lipids_ff_u2l_index:
+			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
+			for g in range(0, protein_max_size_sampled):
+				tmp_lip += str(lipids_ff_contacts_u2l_during_tot_nb_by_size_group[l_index][g]) + "	"
+			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_u2l_during_tot_nb_by_size_group[l_index])) + ")\n")
+		output_stat.write("\n")
+		output_stat.close()
+	
+	#details: l2u
+	#============
+	if np.size(lipids_ff_l2u_index)>0:
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_group/ff_ctcts_by_group_pc_l2u.stat'
+		output_stat = open(filename, 'w')	
+		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
+		output_stat.write("\n")
+	
+		#general info
+		output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+		output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+		if args.m_algorithm == "density":
+			output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+			output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+			output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+		elif args.m_algorithm == "min":
+			output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		else:
+			output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
+	
+		#caption
+		output_stat.write("\n")
+		output_stat.write("caption: total nb of contacts with each cluster size for lipids flip-flopping from the lower to the upper leaflet (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")
+	
+		#before/after
+		output_stat.write("\n")
+		output_stat.write("before/after\n")	
+		output_stat.write("============\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		for g in range(0, protein_max_size_sampled):
+			tmp_title1 += str(groups_labels[g]) + "	"
+			tmp_title2 += "--------"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		for l_index in lipids_ff_l2u_index:
+			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
+			for g in range(0, protein_max_size_sampled):
+				tmp_lip += str(lipids_ff_contacts_l2u_outside_tot_nb_by_size_group[l_index][g]) + "	"
+			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_l2u_outside_tot_nb_by_size_group[l_index])) + ")\n")
+		output_stat.write("\n")
+
+		#during
+		output_stat.write("\n")
+		output_stat.write("during\n")	
+		output_stat.write("======\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		for g in range(0, protein_max_size_sampled):
+			tmp_title1 += str(groups_labels[g]) + "	"
+			tmp_title2 += "--------"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		for l_index in lipids_ff_l2u_index:
+			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
+			for g in range(0, protein_max_size_sampled):
+				tmp_lip += str(lipids_ff_contacts_l2u_during_tot_nb_by_size_group[l_index][g]) + "	"
+			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_l2u_during_tot_nb_by_size_group[l_index])) + ")\n")
+		output_stat.write("\n")
+		output_stat.close()
+
 	return
 def graph_ff_ctcts_by_group():
 
 	#-------------------------------------------------------------------
-	#-what: distribution of ff contacts over cluster size
+	#-what: distribution of ff contacts over cluster size group
 	#-plot: 2 bar charts (ff u2l and l2u) each with 3 bars (peptide, before/after, during) for each cluster group
 	#-------------------------------------------------------------------
 			
