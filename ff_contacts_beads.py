@@ -885,7 +885,7 @@ def data_ff_contacts():
 	protein_TM_distribution_sizes = np.zeros(proteins_nb)
 	if args.cluster_groups_file != "no":
 		global protein_TM_distribution_groups
-		protein_TM_distribution_groups = np.zeros(groups_nb)
+		protein_TM_distribution_groups = np.zeros(groups_nb+1)
 		
 	#contacts stored in matrix where types are rows and cluster sizes are columns (#0:basic, 1:polar, 2: hydrophobic, 3:backbone)
 	global lipids_ff_contacts_during_nb
@@ -912,10 +912,10 @@ def data_ff_contacts():
 		lipids_ff_contacts_during_pc_groups = {}
 		lipids_ff_contacts_outside_pc_groups = {}
 		for l_index in range(0,lipids_ff_nb):
-			lipids_ff_contacts_during_nb_groups[l_index] = np.zeros((4,groups_nb))
-			lipids_ff_contacts_outside_nb_groups[l_index] = np.zeros((4,groups_nb))
-			lipids_ff_contacts_during_pc_groups[l_index] = np.zeros((4,groups_nb))
-			lipids_ff_contacts_outside_pc_groups[l_index] = np.zeros((4,groups_nb))
+			lipids_ff_contacts_during_nb_groups[l_index] = np.zeros((4,groups_nb+1))
+			lipids_ff_contacts_outside_nb_groups[l_index] = np.zeros((4,groups_nb+1))
+			lipids_ff_contacts_during_pc_groups[l_index] = np.zeros((4,groups_nb+1))
+			lipids_ff_contacts_outside_pc_groups[l_index] = np.zeros((4,groups_nb+1))
 		
 	
 	#store statistics
@@ -1187,7 +1187,12 @@ def calc_stats_ctcts():
 	protein_max_size_sampled = len(protein_TM_distribution_sizes)
 	if args.cluster_groups_file != "no":
 		global protein_TM_distribution_groups
+		global group_gmax
 		protein_TM_distribution_groups = protein_TM_distribution_groups / float(np.sum(protein_TM_distribution_groups)) * 100
+		if protein_TM_distribution_groups[groups_nb] != 0:
+			group_gmax = groups_nb+1
+		else:
+			group_gmax = groups_nb
 	
 	# for each flip-flopping lipids
 	#==============================
@@ -1306,6 +1311,7 @@ def calc_stats_ctcts():
 # outputs
 #=========================================================================================
 
+#contacts distribution over residue types
 def write_ff_ctcts_by_type():
 	
 	#percent
@@ -1448,6 +1454,7 @@ def graph_ff_ctcts_by_type():
 	
 	return
 
+#contacts distribution over cluster sizes
 def write_ff_ctcts_by_size():
 	
 	#percent
@@ -1612,6 +1619,7 @@ def graph_ff_ctcts_by_size():
 	
 	return
 
+#contacts distribution over cluster groups
 def write_ff_ctcts_by_group():
 	
 	#percent
@@ -1651,7 +1659,7 @@ def write_ff_ctcts_by_group():
 		tmp_pep = "peptide (ref)	"
 		tmp_dur = "during		"
 		tmp_out = "before/after	"
-		for g in range(0, groups_nb):
+		for g in range(0, group_gmax):
 			tmp_title1 += str(groups_labels[g]) + "	"
 			tmp_title2 += "--------"
 			tmp_pep += str(round(protein_TM_distribution_groups[g],1)) + "	"
@@ -1675,7 +1683,7 @@ def write_ff_ctcts_by_group():
 		tmp_pep = "peptide (ref)	"
 		tmp_dur = "during		"
 		tmp_out = "before/after	"
-		for g in range(0, groups_nb):
+		for g in range(0, group_gmax):
 			tmp_title1 += str(groups_labels[g]) + "	"
 			tmp_title2 += "--------"
 			tmp_pep += str(round(protein_TM_distribution_groups[g],1)) + "	"
@@ -1703,18 +1711,18 @@ def graph_ff_ctcts_by_group():
 	#-------------
 	fig=plt.figure(figsize=(6, 5)) 								#1 column format
 	#fig.suptitle("Distribution of peptides orientation")
-	xticks_pos=np.arange(1,groups_nb+1)
-	xticks_lab=[str(g) for g in range(1, groups_nb + 1)]
+	xticks_pos=np.arange(1,group_gmax+1)
+	xticks_lab=[str(groups_labels[g]) for g in range(0, group_gmax)]
 
 	#plot data: upper to lower
 	#-------------------------
 	ax1 = fig.add_subplot(211)
 	#peptide
-	plt.bar(xticks_pos-0.375, protein_TM_distribution_groups, width=0.25, color='#C0C0C0', label="peptide")	
+	plt.bar(xticks_pos-0.375, protein_TM_distribution_groups[:group_gmax], width=0.25, color='#C0C0C0', label="peptide")	
 	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_size_group_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_size_group_std, ecolor='k')
+	plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_size_group_avg[:group_gmax], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_size_group_std[:group_gmax], ecolor='k')
 	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_size_group_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_size_group_std, ecolor='k')
+	plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_size_group_avg[:group_gmax], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_size_group_std[:group_gmax], ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Upper to Lower", size='small')
@@ -1726,11 +1734,11 @@ def graph_ff_ctcts_by_group():
 	#-------------------------
 	ax2 = fig.add_subplot(212)
 	#peptide
-	plt.bar(xticks_pos-0.375, protein_TM_distribution_groups, width=0.25, color='#C0C0C0', label="peptide")	
+	plt.bar(xticks_pos-0.375, protein_TM_distribution_groups[:group_gmax], width=0.25, color='#C0C0C0', label="peptide")	
 	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_size_group_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_size_group_std, ecolor='k')
+	plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_size_group_avg[:group_gmax], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_size_group_std[:group_gmax], ecolor='k')
 	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_size_group_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_size_group_std, ecolor='k')
+	plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_size_group_avg[:group_gmax], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_size_group_std[:group_gmax], ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Lower to Upper", size='small')
@@ -1752,8 +1760,8 @@ def graph_ff_ctcts_by_group():
 	ax1.get_yaxis().tick_left()
 	ax2.get_xaxis().tick_bottom()  										# remove unneeded ticks 
 	ax2.get_yaxis().tick_left()
-	ax1.set_xlim(0.5, groups_nb + 0.5)
-	ax2.set_xlim(0.5, groups_nb + 0.5)
+	ax1.set_xlim(0.5, group_gmax + 0.5)
+	ax2.set_xlim(0.5, group_gmax + 0.5)
 	ax1.set_ylim(ymin=0)
 	ax2.set_ylim(ymin=0)
 	plt.setp(ax1.xaxis.get_majorticklabels(), fontsize="x-small")
