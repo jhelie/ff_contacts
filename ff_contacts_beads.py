@@ -1612,6 +1612,83 @@ def graph_ff_ctcts_by_size():
 	
 	return
 
+def write_ff_ctcts_by_group():
+	
+	#percent
+	#-------
+	filename=os.getcwd() + '/' + str(args.output_folder) + '/ff_ctcts_by_group_pc.stat'
+	output_stat = open(filename, 'w')	
+	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
+	output_stat.write("\n")
+
+	#general info
+	output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+	output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+	if args.m_algorithm == "density":
+		output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+		output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+		output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+	elif args.m_algorithm == "min":
+		output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+		output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+	else:
+		output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+		output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+	output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
+
+	#caption
+	output_stat.write("\n")
+	output_stat.write("caption: average distribution of contacts over cluster size groups (%)\n")
+	
+	#upper to lower
+	if np.size(lipids_ff_u2l_index)>0:
+		output_stat.write("\n")
+		output_stat.write("upper to lower (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")	
+		output_stat.write("==============\n")
+		output_stat.write("\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		tmp_dur = "during		"
+		tmp_out = "before/after	"
+		for g in range(0, groups_nb):
+			tmp_title1 += str(groups_labels[g]) + "	"
+			tmp_title2 += "--------"
+			tmp_pep += str(round(protein_TM_distribution_groups[g],1)) + "	"
+			tmp_dur += str(round(lipids_ff_contacts_u2l_during_by_size_group_avg[g],1)) + "	"
+			tmp_out += str(round(lipids_ff_contacts_u2l_outside_by_size_group_avg[g],1)) + "	"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		output_stat.write(tmp_pep + "(" + str(round(np.sum(protein_TM_distribution_groups),1)) + ")\n")
+		output_stat.write(tmp_dur + "(" + str(round(np.sum(lipids_ff_contacts_u2l_during_by_size_group_avg),1)) + ")\n")
+		output_stat.write(tmp_out + "(" + str(round(np.sum(lipids_ff_contacts_u2l_outside_by_size_group_avg),1)) + ")\n")
+		output_stat.write("\n")
+
+	#lower to upper	
+	if np.size(lipids_ff_l2u_index)>0:
+		output_stat.write("\n")
+		output_stat.write("lower to upper (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")	
+		output_stat.write("==============\n")
+		output_stat.write("\n")
+		tmp_title1 = "		"
+		tmp_title2 = "----------------"
+		tmp_pep = "peptide (ref)	"
+		tmp_dur = "during		"
+		tmp_out = "before/after	"
+		for g in range(0, groups_nb):
+			tmp_title1 += str(groups_labels[g]) + "	"
+			tmp_title2 += "--------"
+			tmp_pep += str(round(protein_TM_distribution_groups[g],1)) + "	"
+			tmp_dur += str(round(lipids_ff_contacts_l2u_during_by_size_group_avg[g],1)) + "	"
+			tmp_out += str(round(lipids_ff_contacts_l2u_outside_by_size_group_avg[g],1)) + "	"
+		output_stat.write(tmp_title1 + "\n")
+		output_stat.write(tmp_title2 + "\n")
+		output_stat.write(tmp_pep + "(" + str(round(np.sum(protein_TM_distribution_groups),1)) + ")\n")
+		output_stat.write(tmp_dur + "(" + str(round(np.sum(lipids_ff_contacts_l2u_during_by_size_group_avg),1)) + ")\n")
+		output_stat.write(tmp_out + "(" + str(round(np.sum(lipids_ff_contacts_l2u_outside_by_size_group_avg),1)) + ")\n")
+		output_stat.write("\n")
+	
+	output_stat.close()
 def graph_ff_ctcts_by_group():
 
 	#-------------------------------------------------------------------
@@ -1757,6 +1834,7 @@ graph_ff_ctcts_by_type()
 write_ff_ctcts_by_size()
 graph_ff_ctcts_by_size()
 if args.cluster_groups_file != "no":
+	write_ff_ctcts_by_group()
 	graph_ff_ctcts_by_group()
 
 #=========================================================================================
