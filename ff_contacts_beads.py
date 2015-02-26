@@ -1959,14 +1959,14 @@ def write_ff_ctcts_by_group():
 		tmp_title1 = "		"
 		tmp_title2 = "----------------"
 		tmp_pep = "peptide (ref)	"
-		for g in range(0, protein_max_size_sampled):
+		for g in range(0, group_gmax):
 			tmp_title1 += str(groups_labels[g]) + "	"
 			tmp_title2 += "--------"
 		output_stat.write(tmp_title1 + "\n")
 		output_stat.write(tmp_title2 + "\n")
 		for l_index in lipids_ff_u2l_index:
 			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
-			for g in range(0, protein_max_size_sampled):
+			for g in range(0, group_gmax):
 				tmp_lip += str(lipids_ff_contacts_u2l_outside_tot_nb_by_size_group[l_index][g]) + "	"
 			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_u2l_outside_tot_nb_by_size_group[l_index])) + ")\n")
 		output_stat.write("\n")
@@ -1978,14 +1978,14 @@ def write_ff_ctcts_by_group():
 		tmp_title1 = "		"
 		tmp_title2 = "----------------"
 		tmp_pep = "peptide (ref)	"
-		for g in range(0, protein_max_size_sampled):
+		for g in range(0, group_gmax):
 			tmp_title1 += str(groups_labels[g]) + "	"
 			tmp_title2 += "--------"
 		output_stat.write(tmp_title1 + "\n")
 		output_stat.write(tmp_title2 + "\n")
 		for l_index in lipids_ff_u2l_index:
 			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
-			for g in range(0, protein_max_size_sampled):
+			for g in range(0, group_gmax):
 				tmp_lip += str(lipids_ff_contacts_u2l_during_tot_nb_by_size_group[l_index][g]) + "	"
 			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_u2l_during_tot_nb_by_size_group[l_index])) + ")\n")
 		output_stat.write("\n")
@@ -2025,14 +2025,14 @@ def write_ff_ctcts_by_group():
 		tmp_title1 = "		"
 		tmp_title2 = "----------------"
 		tmp_pep = "peptide (ref)	"
-		for g in range(0, protein_max_size_sampled):
+		for g in range(0, group_gmax):
 			tmp_title1 += str(groups_labels[g]) + "	"
 			tmp_title2 += "--------"
 		output_stat.write(tmp_title1 + "\n")
 		output_stat.write(tmp_title2 + "\n")
 		for l_index in lipids_ff_l2u_index:
 			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
-			for g in range(0, protein_max_size_sampled):
+			for g in range(0, group_gmax):
 				tmp_lip += str(lipids_ff_contacts_l2u_outside_tot_nb_by_size_group[l_index][g]) + "	"
 			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_l2u_outside_tot_nb_by_size_group[l_index])) + ")\n")
 		output_stat.write("\n")
@@ -2044,14 +2044,14 @@ def write_ff_ctcts_by_group():
 		tmp_title1 = "		"
 		tmp_title2 = "----------------"
 		tmp_pep = "peptide (ref)	"
-		for g in range(0, protein_max_size_sampled):
+		for g in range(0, group_gmax):
 			tmp_title1 += str(groups_labels[g]) + "	"
 			tmp_title2 += "--------"
 		output_stat.write(tmp_title1 + "\n")
 		output_stat.write(tmp_title2 + "\n")
 		for l_index in lipids_ff_l2u_index:
 			tmp_lip = str(lipids_ff_info[l_index][0]) + " " + str(str(lipids_ff_info[l_index][1])) + "	"	
-			for g in range(0, protein_max_size_sampled):
+			for g in range(0, group_gmax):
 				tmp_lip += str(lipids_ff_contacts_l2u_during_tot_nb_by_size_group[l_index][g]) + "	"
 			output_stat.write(tmp_lip + "(" + str(np.sum(lipids_ff_contacts_l2u_during_tot_nb_by_size_group[l_index])) + ")\n")
 		output_stat.write("\n")
