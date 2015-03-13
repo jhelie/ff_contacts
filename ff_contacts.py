@@ -2182,7 +2182,7 @@ for f_index in range(0,nb_frames_to_process):
 	box_dim = U.trajectory.ts.dimensions
 	
 	#process ff lipids
-	identify_ff_contacts(box_dim, f_time, f_nb)
+	identify_ff_contacts(box_dim, f_time, f_index)
 	
 print ''
 
