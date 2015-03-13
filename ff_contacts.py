@@ -12,7 +12,7 @@ import os.path
 #=========================================================================================
 # create parser
 #=========================================================================================
-version_nb="0.0.1"
+version_nb="0.0.2"
 parser = argparse.ArgumentParser(prog='ff_contacts', usage='', add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter, description=\
 '''
 **********************************************
