@@ -13,14 +13,14 @@ import os.path
 # create parser
 #=========================================================================================
 version_nb="0.0.1"
-parser = argparse.ArgumentParser(prog='ff_contacts_beads', usage='', add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter, description=\
+parser = argparse.ArgumentParser(prog='ff_contacts', usage='', add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter, description=\
 '''
-************************************************
+**********************************************
 v''' + version_nb + '''
 author: Jean Helie (jean.helie@bioch.ox.ac.uk)
-git: https://github.com/jhelie/ff_contacts_beads
+git: https://github.com/jhelie/ff_contacts
 DOI: 
-************************************************
+**********************************************
 
 [ DESCRIPTION ]
 
@@ -351,7 +351,7 @@ elif not os.path.isfile(args.xtcfilename):
 # create folders and log file
 #=========================================================================================
 if args.output_folder == "no":
-	args.output_folder = "ff_cbeads_" + args.xtcfilename[:-4]
+	args.output_folder = "ff_ctcts_" + args.xtcfilename[:-4]
 
 if os.path.isdir(args.output_folder):
 	print "Error: folder " + str(args.output_folder) + " already exists, choose a different output name via -o."
@@ -365,11 +365,11 @@ else:
 	
 	#create log
 	#----------
-	filename_log=os.getcwd() + '/' + str(args.output_folder) + '/ff_contacts_beads.log'
+	filename_log=os.getcwd() + '/' + str(args.output_folder) + '/ff_contacts.log'
 	output_log=open(filename_log, 'w')		
-	output_log.write("[ff_contacts_beads v" + str(version_nb) + "]\n")
+	output_log.write("[ff_contacts v" + str(version_nb) + "]\n")
 	output_log.write("\nThis folder and its content were created using the following command:\n\n")
-	tmp_log="python ff_contacts_beads.py"
+	tmp_log="python ff_contacts.py"
 	for c in sys.argv[1:]:
 		tmp_log+=" " + c
 	output_log.write(tmp_log + "\n")
