@@ -329,7 +329,7 @@ if args.cluster_groups_file != "no" and not os.path.isfile(args.cluster_groups_f
 if args.beadsfilename != "no" and not os.path.isfile(args.beadsfilename):
 	print "Error: file " + str(args.beadsfilename) + " not found."
 	sys.exit(1)
-if args.t_end < args.t_start:
+if args.t_end != -1 and args.t_end < args.t_start:
 	print "Error: the starting time (" + str(args.t_start) + "ns) for analysis is later than the ending time (" + str(args.t_end) + "ns)."
 	sys.exit(1)
 
