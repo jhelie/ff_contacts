@@ -786,7 +786,7 @@ def identify_leaflets():
 		leaflet_sele_atoms[l]["all species"] = leaflet_sele[l]["all species"].residues.atoms
 	
 	return
-def initialise_groups():												#DONE
+def initialise_groups():
 
 	global groups_labels
 	global groups_nb
@@ -1359,13 +1359,12 @@ def calc_stats_ctcts():
 	
 	#calculate TM proteins distribution
 	#==================================
-	global protein_max_size_sampled
 	global protein_TM_distribution_sizes
-	
 	protein_TM_distribution_sizes = protein_TM_distribution_sizes / float(np.sum(protein_TM_distribution_sizes)) * 100
 	protein_TM_distribution_sizes = protein_TM_distribution_sizes[0:np.amax(np.nonzero(protein_TM_distribution_sizes))+1]	
 	
 	#identify index of cluster sizes sampled
+	global protein_sizes_sampled, protein_max_size_sampled
 	protein_sizes_sampled = np.arange(0,proteins_nb)[protein_TM_distribution_sizes != 0]
 	protein_max_size_sampled = len(protein_TM_distribution_sizes)
 		
@@ -1381,15 +1380,15 @@ def calc_stats_ctcts():
 
 	#create data structure to store data in order to calculate average contact profiles
 	if args.profile:
-		tmp_profile_u2l_during_sizes = {c_size: {} for c_size in protein_sizes_sampled}
-		tmp_profile_u2l_outside_sizes = {c_size: {} for c_size in protein_sizes_sampled}
-		tmp_profile_l2u_during_sizes = {c_size: {} for c_size in protein_sizes_sampled}
-		tmp_profile_l2u_outside_sizes = {c_size: {} for c_size in protein_sizes_sampled}
+		tmp_profile_u2l_during_sizes = {}
+		tmp_profile_u2l_outside_sizes = {}
+		tmp_profile_l2u_during_sizes = {}
+		tmp_profile_l2u_outside_sizes = {}
 		if args.cluster_groups_file != "no":
-			tmp_profile_u2l_during_groups = {g_index: {} for g_index in range(0,group_gmax)}	
-			tmp_profile_u2l_outside_groups = {g_index: {} for g_index in range(0,group_gmax)}	
-			tmp_profile_l2u_during_groups = {g_index: {} for g_index in range(0,group_gmax)}	
-			tmp_profile_l2u_outside_groups = {g_index: {} for g_index in range(0,group_gmax)}
+			tmp_profile_u2l_during_groups = {}
+			tmp_profile_u2l_outside_groups = {}
+			tmp_profile_l2u_during_groups = {}
+			tmp_profile_l2u_outside_groups = {}
 	
 	# for each flip-flopping lipids: u2l
 	#==============================
@@ -1440,16 +1439,16 @@ def calc_stats_ctcts():
 					for t in range(0,4):
 						lipids_ff_contacts_during_pc_profile[l_index][t, :, c_size] = 100 * lipids_ff_contacts_during_nb_profile[l_index][t, :, c_size] / float(tmp_tot_c_size_during)
 					#store it in a format allowing easy averaging over ff lipids later
-					tmp_profile_u2l_during_sizes[c_size][l_index] = np.zeros(4,2*bins_nb)
-					tmp_profile_u2l_during_sizes[c_size][l_index][:,:] = lipids_ff_contacts_during_pc_profile[l_index][:, :, c_size]
+					tmp_profile_u2l_during_sizes[l_index] = np.zeros(4,2*bins_nb)
+					tmp_profile_u2l_during_sizes[l_index][:,:] = lipids_ff_contacts_during_pc_profile[l_index][:, :, c_size]
 				#outside ff
 				if  tmp_tot_c_size_outside > 0:
 					#calculate distribution
 					for t in range(0,4):
 						lipids_ff_contacts_outside_pc_profile[l_index][t, :, c_size] = 100 * lipids_ff_contacts_outside_nb_profile[l_index][t, :, c_size] / float(tmp_tot_c_size_outside)
 					#store it in a format allowing easy averaging over ff lipids later
-					tmp_profile_u2l_outside_sizes[c_size][l_index] = np.zeros(4,2*bins_nb)
-					tmp_profile_u2l_outside_sizes[c_size][l_index][:,:] = lipids_ff_contacts_outside_pc_profile[l_index][:, :, c_size]
+					tmp_profile_u2l_outside_sizes[l_index] = np.zeros(4,2*bins_nb)
+					tmp_profile_u2l_outside_sizes[l_index][:,:] = lipids_ff_contacts_outside_pc_profile[l_index][:, :, c_size]
 
 			#for each group
 			if args.cluster_groups_file != "no":
@@ -1462,16 +1461,16 @@ def calc_stats_ctcts():
 						for t in range(0,4):
 							lipids_ff_contacts_during_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_during_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_during)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_u2l_during_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
-						tmp_profile_u2l_during_groups[g_index][l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
+						tmp_profile_u2l_during_groups[l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_u2l_during_groups[l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
 					#outside ff
 					if tmp_tot_g_index_outside > 0:
 						#calculate distribution
 						for t in range(0,4):
 							lipids_ff_contacts_outside_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_outside_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_outside)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_u2l_outside_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
-						tmp_profile_u2l_outside_groups[g_index][l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
+						tmp_profile_u2l_outside_groups[l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_u2l_outside_groups[l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
 
 	# for each flip-flopping lipids: l2u
 	#==============================
@@ -1522,16 +1521,16 @@ def calc_stats_ctcts():
 					for t in range(0,4):
 						lipids_ff_contacts_during_pc_profile[l_index][t, :, c_size] = 100 * lipids_ff_contacts_during_nb_profile[l_index][t, :, c_size] / float(tmp_tot_c_size_during)
 					#store it in a format allowing easy averaging over ff lipids later
-					tmp_profile_l2u_during_sizes[c_size][l_index] = np.zeros(4,2*bins_nb)
-					tmp_profile_l2u_during_sizes[c_size][l_index][:,:] = lipids_ff_contacts_during_pc_profile[l_index][:, :, c_size]				
+					tmp_profile_l2u_during_sizes[l_index] = np.zeros(4,2*bins_nb)
+					tmp_profile_l2u_during_sizes[l_index][:,:] = lipids_ff_contacts_during_pc_profile[l_index][:, :, c_size]				
 				#outside ff
 				if  tmp_tot_c_size_outside > 0:
 					#calculate distribution
 					for t in range(0,4):
 						lipids_ff_contacts_outside_pc_profile[l_index][t, :, c_size] = 100 * lipids_ff_contacts_outside_nb_profile[l_index][t, :, c_size] / float(tmp_tot_c_size_outside)
 					#store it in a format allowing easy averaging over ff lipids later
-					tmp_profile_l2u_outside_sizes[c_size][l_index] = np.zeros(4,2*bins_nb)
-					tmp_profile_l2u_outside_sizes[c_size][l_index][:,:] = lipids_ff_contacts_outside_pc_profile[l_index][:, :, c_size]
+					tmp_profile_l2u_outside_sizes[l_index] = np.zeros(4,2*bins_nb)
+					tmp_profile_l2u_outside_sizes[l_index][:,:] = lipids_ff_contacts_outside_pc_profile[l_index][:, :, c_size]
 			
 			#for each group
 			if args.cluster_groups_file != "no":
@@ -1544,16 +1543,16 @@ def calc_stats_ctcts():
 						for t in range(0,4):
 							lipids_ff_contacts_during_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_during_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_during)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_l2u_during_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
-						tmp_profile_l2u_during_groups[g_index][l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
+						tmp_profile_l2u_during_groups[l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_l2u_during_groups[l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
 					#outside ff
 					if tmp_tot_g_index_outside > 0:
 						#calculate distribution
 						for t in range(0,4):
 							lipids_ff_contacts_outside_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_outside_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_outside)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_l2u_outside_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
-						tmp_profile_l2u_outside_groups[g_index][l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
+						tmp_profile_l2u_outside_groups[l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_l2u_outside_groups[l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
 
 	# averages
 	#=========
@@ -1606,27 +1605,27 @@ def calc_stats_ctcts():
 		global lipids_ff_contacts_l2u_during_profile_avg, lipids_ff_contacts_l2u_during_profile_std
 		global lipids_ff_contacts_u2l_outside_profile_avg, lipids_ff_contacts_u2l_outside_profile_std
 		global lipids_ff_contacts_l2u_outside_profile_avg, lipids_ff_contacts_l2u_outside_profile_std
-		lipids_ff_contacts_u2l_during_profile_avg = {c_size: np.average(tmp_profile_u2l_during_sizes[c_size].values(), axis = 0) for c_size in protein_sizes_sampled}
-		lipids_ff_contacts_u2l_during_profile_std = {c_size: np.std(tmp_profile_u2l_during_sizes[c_size].values(), axis = 0) for c_size in protein_sizes_sampled}
-		lipids_ff_contacts_u2l_outside_profile_avg = {c_size: np.average(tmp_profile_u2l_outside_sizes[c_size].values(), axis = 0) for c_size in protein_sizes_sampled}
-		lipids_ff_contacts_u2l_outside_profile_std = {c_size: np.std(tmp_profile_u2l_outside_sizes[c_size].values(), axis = 0) for c_size in protein_sizes_sampled}
-		lipids_ff_contacts_l2u_during_profile_avg = {c_size: np.average(tmp_profile_l2u_during_sizes[c_size].values(), axis = 0) for c_size in protein_sizes_sampled}
-		lipids_ff_contacts_l2u_during_profile_std = {c_size: np.std(tmp_profile_l2u_during_sizes[c_size].values(), axis = 0) for c_size in protein_sizes_sampled}
-		lipids_ff_contacts_l2u_outside_profile_avg = {c_size: np.average(tmp_profile_l2u_outside_sizes[c_size].values(), axis = 0) for c_size in protein_sizes_sampled}
-		lipids_ff_contacts_l2u_outside_profile_std = {c_size: np.std(tmp_profile_l2u_outside_sizes[c_size].values(), axis = 0) for c_size in protein_sizes_sampled}
+		lipids_ff_contacts_u2l_during_profile_avg = np.average(tmp_profile_u2l_during_sizes.values(), axis = 0)
+		lipids_ff_contacts_u2l_during_profile_std = np.std(tmp_profile_u2l_during_sizes.values(), axis = 0)
+		lipids_ff_contacts_u2l_outside_profile_avg = np.average(tmp_profile_u2l_outside_sizes.values(), axis = 0)
+		lipids_ff_contacts_u2l_outside_profile_std = np.std(tmp_profile_u2l_outside_sizes.values(), axis = 0)
+		lipids_ff_contacts_l2u_during_profile_avg = np.average(tmp_profile_l2u_during_sizes.values(), axis = 0)
+		lipids_ff_contacts_l2u_during_profile_std = np.std(tmp_profile_l2u_during_sizes.values(), axis = 0)
+		lipids_ff_contacts_l2u_outside_profile_avg = np.average(tmp_profile_l2u_outside_sizes.values(), axis = 0)
+		lipids_ff_contacts_l2u_outside_profile_std = np.std(tmp_profile_l2u_outside_sizes.values(), axis = 0)
 		if args.cluster_groups_file != "no":	
 			global lipids_ff_contacts_u2l_during_profile_groups_avg, lipids_ff_contacts_u2l_during_profile_groups_std
 			global lipids_ff_contacts_l2u_during_profile_groups_avg, lipids_ff_contacts_l2u_during_profile_groups_std
 			global lipids_ff_contacts_u2l_outside_profile_groups_avg, lipids_ff_contacts_u2l_outside_profile_groups_std
 			global lipids_ff_contacts_l2u_outside_profile_groups_avg, lipids_ff_contacts_l2u_outside_profile_groups_std
-			lipids_ff_contacts_u2l_during_profile_groups_avg = {g_index: np.average(tmp_profile_u2l_during_groups[g_index].values(), axis = 0) for g_index in range(0,group_gmax)}
-			lipids_ff_contacts_u2l_during_profile_groups_std = {g_index: np.std(tmp_profile_u2l_during_groups[g_index].values(), axis = 0) for g_index in range(0,group_gmax)}
-			lipids_ff_contacts_u2l_outside_profile_groups_avg = {g_index: np.average(tmp_profile_u2l_outside_groups[g_index].values(), axis = 0) for g_index in range(0,group_gmax)}
-			lipids_ff_contacts_u2l_outside_profile_groups_std = {g_index: np.std(tmp_profile_u2l_outside_groups[g_index].values(), axis = 0) for g_index in range(0,group_gmax)}
-			lipids_ff_contacts_l2u_during_profile_groups_avg = {g_index: np.average(tmp_profile_l2u_during_groups[g_index].values(), axis = 0) for g_index in range(0,group_gmax)}
-			lipids_ff_contacts_l2u_during_profile_groups_std = {g_index: np.std(tmp_profile_l2u_during_groups[g_index].values(), axis = 0) for g_index in range(0,group_gmax)}
-			lipids_ff_contacts_l2u_outside_profile_groups_avg = {g_index: np.average(tmp_profile_l2u_outside_groups[g_index].values(), axis = 0) for g_index in range(0,group_gmax)}
-			lipids_ff_contacts_l2u_outside_profile_groups_std = {g_index: np.std(tmp_profile_l2u_outside_groups[g_index].values(), axis = 0) for g_index in range(0,group_gmax)}
+			lipids_ff_contacts_u2l_during_profile_groups_avg = np.average(tmp_profile_u2l_during_groups.values(), axis = 0)
+			lipids_ff_contacts_u2l_during_profile_groups_std = np.std(tmp_profile_u2l_during_groups.values(), axis = 0)
+			lipids_ff_contacts_u2l_outside_profile_groups_avg = np.average(tmp_profile_u2l_outside_groups.values(), axis = 0)
+			lipids_ff_contacts_u2l_outside_profile_groups_std = np.std(tmp_profile_u2l_outside_groups.values(), axis = 0)
+			lipids_ff_contacts_l2u_during_profile_groups_avg = np.average(tmp_profile_l2u_during_groups.values(), axis = 0)
+			lipids_ff_contacts_l2u_during_profile_groups_std = np.std(tmp_profile_l2u_during_groups.values(), axis = 0)
+			lipids_ff_contacts_l2u_outside_profile_groups_avg = np.average(tmp_profile_l2u_outside_groups.values(), axis = 0)
+			lipids_ff_contacts_l2u_outside_profile_groups_std = np.std(tmp_profile_l2u_outside_groups.values(), axis = 0)
 	
 	return
 
@@ -2464,86 +2463,95 @@ def graph_ff_ctcts_by_group():
 	
 	return
 
-#contacts distribution along local normal: sizes
-def write_ff_ctcts_by_size():
-	
-	#averages
-	#========
-	filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_by_size_pc.stat'
-	output_stat = open(filename, 'w')	
-	output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
-	output_stat.write("\n")
-
-	#general info
-	output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
-	output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
-	if args.m_algorithm == "density":
-		output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
-		output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
-		output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
-	elif args.m_algorithm == "min":
-		output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
-		output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
-	else:
-		output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
-		output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
-	output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
-
-	#caption
-	output_stat.write("\n")
-	output_stat.write("caption: average distribution of contacts over cluster sizes (%)\n")
+#contacts distribution along local normal: overall
+def write_ff_ctcts_profile_all():
 	
 	#upper to lower
-	if np.size(lipids_ff_u2l_index)>0:
+	#==============
+	if numpy.size(ff_u2l_index)>0:
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l.stat'
+		output_stat = open(filename, 'w')	
+		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		output_stat.write("\n")
-		output_stat.write("upper to lower (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")	
-		output_stat.write("==============\n")
-		tmp_title1 = "		"
-		tmp_title2 = "----------------"
-		tmp_pep = "peptide (ref)	"
-		tmp_dur = "during		"
-		tmp_out = "before/after	"
-		for c in range(0, protein_max_size_sampled):
-			tmp_title1 += str(c+1) + "	"
-			tmp_title2 += "--------"
-			tmp_pep += str(round(protein_TM_distribution_sizes[c],1)) + "	"
-			tmp_dur += str(round(lipids_ff_contacts_u2l_during_by_size_avg[c],1)) + "	"
-			tmp_out += str(round(lipids_ff_contacts_u2l_outside_by_size_avg[c],1)) + "	"
-		output_stat.write(tmp_title1 + "\n")
-		output_stat.write(tmp_title2 + "\n")
-		output_stat.write(tmp_pep + "(" + str(round(np.sum(protein_TM_distribution_sizes),1)) + ")\n")
-		output_stat.write(tmp_dur + "(" + str(round(np.sum(lipids_ff_contacts_u2l_during_by_size_avg),1)) + ")\n")
-		output_stat.write(tmp_out + "(" + str(round(np.sum(lipids_ff_contacts_u2l_outside_by_size_avg),1)) + ")\n")
+	
+		#general info
+		output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+		output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+		if args.m_algorithm == "density":
+			output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+			output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+			output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+		elif args.m_algorithm == "min":
+			output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		else:
+			output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
+	
+		#caption
 		output_stat.write("\n")
+		output_stat.write("caption: average distribution of contacts along the local normal to the bilayer (%)\n")
+		
+		#build title bars
+		title_bar1 = "	"
+		title_bar2 = "---"
+		for n in bins_labels:
+			title_bar1 += "	" + str(n)
+			title_bar2 += "--------"
 
-	#lower to upper	
-	if np.size(lipids_ff_l2u_index)>0:
+		#averages
 		output_stat.write("\n")
-		output_stat.write("lower to upper (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")	
-		output_stat.write("==============\n")
-		tmp_title1 = "		"
-		tmp_title2 = "----------------"
-		tmp_pep = "peptide (ref)	"
-		tmp_dur = "during		"
-		tmp_out = "before/after	"
-		for c in range(0, protein_max_size_sampled):
-			tmp_title1 += str(c+1) + "	"
-			tmp_title2 += "--------"
-			tmp_pep += str(round(protein_TM_distribution_sizes[c],1)) + "	"
-			tmp_dur += str(round(lipids_ff_contacts_l2u_during_by_size_avg[c],1)) + "	"
-			tmp_out += str(round(lipids_ff_contacts_l2u_outside_by_size_avg[c],1)) + "	"
-		output_stat.write(tmp_title1 + "\n")
-		output_stat.write(tmp_title2 + "\n")
-		output_stat.write(tmp_pep + "(" + str(round(np.sum(protein_TM_distribution_sizes),1)) + ")\n")
-		output_stat.write(tmp_dur + "(" + str(round(np.sum(lipids_ff_contacts_l2u_during_by_size_avg),1)) + ")\n")
-		output_stat.write(tmp_out + "(" + str(round(np.sum(lipids_ff_contacts_l2u_outside_by_size_avg),1)) + ")\n")
+		output_stat.write("AVG\n")
+		output_stat.write(title_bar1 + "\n")
+		output_stat.write(title_bar2 + "\n")
+		results_type = {}
+		results_type["basic"] = "basic	"
+		results_type["polar"] = "polar	"
+		results_type["hydrophobic"] = "hydrophobic	"
+		results_type["bb_only"] = "bb_only	"
+		results_type["total"] = "total	"
+		for n in range(0, 2*bins_nb):
+			results_type["basic"] += "	" + str(round(lipids_ff_contacts_u2l_during_profile_avg[0,n],1))
+			results_type["polar"] += "	" + str(round(lipids_ff_contacts_u2l_during_profile_avg[1,n],1))
+			results_type["hydrophobic"] += "	" + str(round(lipids_ff_contacts_u2l_during_profile_avg[2,n],1))
+			results_type["bb_only"] += "	" + str(round(lipids_ff_contacts_u2l_during_profile_avg[3,n],1))
+			results_type["total"] += "	" + str(round(np.sum(lipids_ff_contacts_u2l_during_profile_avg[:,n]),1))
+		output_stat.write(results_type["basic"] + "\n")
+		output_stat.write(results_type["polar"] + "\n")
+		output_stat.write(results_type["hydrophobic"] + "\n")
+		output_stat.write(results_type["bb_only"] + "\n")
+		output_stat.write(title_bar2 + "\n")
+		output_stat.write(results_type["total"] + "\n")
+
+		#std
 		output_stat.write("\n")
-	output_stat.close()
+		output_stat.write("STD\n")
+		output_stat.write(title_bar1 + "\n")
+		output_stat.write(title_bar2 + "\n")
+		results_type = {}
+		results_type["basic"] = "basic	"
+		results_type["polar"] = "polar	"
+		results_type["hydrophobic"] = "hydrophobic	"
+		results_type["bb_only"] = "bb_only	"
+		for n in range(0, 2*bins_nb):
+			results_type["basic"] += "	" + str(round(lipids_ff_contacts_u2l_during_profile_std[0,n],2))
+			results_type["polar"] += "	" + str(round(lipids_ff_contacts_u2l_during_profile_std[1,n],2))
+			results_type["hydrophobic"] += "	" + str(round(lipids_ff_contacts_u2l_during_profile_std[2,n],2))
+			results_type["bb_only"] += "	" + str(round(lipids_ff_contacts_u2l_during_profile_std[3,n],2))
+		output_stat.write(results_type["basic"] + "\n")
+		output_stat.write(results_type["polar"] + "\n")
+		output_stat.write(results_type["hydrophobic"] + "\n")
+		output_stat.write(results_type["bb_only"] + "\n")
+
+		#close file
+		output_stat.close()
 	
 	return
 
 
-#contacts distribution along local normal: groups
+#contacts distribution along local normal: by groups
+#TO DO
 
 ##########################################################################################
 # ALGORITHM
