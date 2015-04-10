@@ -1385,10 +1385,10 @@ def calc_stats_ctcts():
 		tmp_profile_l2u_during_sizes = {}
 		tmp_profile_l2u_outside_sizes = {}
 		if args.cluster_groups_file != "no":
-			tmp_profile_u2l_during_groups = {}
-			tmp_profile_u2l_outside_groups = {}
-			tmp_profile_l2u_during_groups = {}
-			tmp_profile_l2u_outside_groups = {}
+			tmp_profile_u2l_during_groups = {g_index: {} for g_index in range(0, group_gmax)}
+			tmp_profile_u2l_outside_groups = {g_index: {} for g_index in range(0, group_gmax)}
+			tmp_profile_l2u_during_groups = {g_index: {} for g_index in range(0, group_gmax)}
+			tmp_profile_l2u_outside_groups = {g_index: {} for g_index in range(0, group_gmax)}
 	
 	# for each flip-flopping lipids: u2l
 	#==============================
@@ -1461,16 +1461,16 @@ def calc_stats_ctcts():
 						for t in range(0,4):
 							lipids_ff_contacts_during_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_during_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_during)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_u2l_during_groups[l_index] = np.zeros(4,2*bins_nb)
-						tmp_profile_u2l_during_groups[l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
+						tmp_profile_u2l_during_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_u2l_during_groups[g_index][l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
 					#outside ff
 					if tmp_tot_g_index_outside > 0:
 						#calculate distribution
 						for t in range(0,4):
 							lipids_ff_contacts_outside_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_outside_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_outside)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_u2l_outside_groups[l_index] = np.zeros(4,2*bins_nb)
-						tmp_profile_u2l_outside_groups[l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
+						tmp_profile_u2l_outside_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_u2l_outside_groups[g_index][l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
 
 	# for each flip-flopping lipids: l2u
 	#==============================
@@ -1543,16 +1543,16 @@ def calc_stats_ctcts():
 						for t in range(0,4):
 							lipids_ff_contacts_during_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_during_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_during)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_l2u_during_groups[l_index] = np.zeros(4,2*bins_nb)
-						tmp_profile_l2u_during_groups[l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
+						tmp_profile_l2u_during_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_l2u_during_groups[g_index][l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
 					#outside ff
 					if tmp_tot_g_index_outside > 0:
 						#calculate distribution
 						for t in range(0,4):
 							lipids_ff_contacts_outside_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_outside_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_outside)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_l2u_outside_groups[l_index] = np.zeros(4,2*bins_nb)
-						tmp_profile_l2u_outside_groups[l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
+						tmp_profile_l2u_outside_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_l2u_outside_groups[g_index][l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
 
 	# averages
 	#=========
@@ -1618,15 +1618,28 @@ def calc_stats_ctcts():
 			global lipids_ff_contacts_l2u_during_profile_groups_avg, lipids_ff_contacts_l2u_during_profile_groups_std
 			global lipids_ff_contacts_u2l_outside_profile_groups_avg, lipids_ff_contacts_u2l_outside_profile_groups_std
 			global lipids_ff_contacts_l2u_outside_profile_groups_avg, lipids_ff_contacts_l2u_outside_profile_groups_std
-			lipids_ff_contacts_u2l_during_profile_groups_avg = np.average(tmp_profile_u2l_during_groups.values(), axis = 0)
-			lipids_ff_contacts_u2l_during_profile_groups_std = np.std(tmp_profile_u2l_during_groups.values(), axis = 0)
-			lipids_ff_contacts_u2l_outside_profile_groups_avg = np.average(tmp_profile_u2l_outside_groups.values(), axis = 0)
-			lipids_ff_contacts_u2l_outside_profile_groups_std = np.std(tmp_profile_u2l_outside_groups.values(), axis = 0)
-			lipids_ff_contacts_l2u_during_profile_groups_avg = np.average(tmp_profile_l2u_during_groups.values(), axis = 0)
-			lipids_ff_contacts_l2u_during_profile_groups_std = np.std(tmp_profile_l2u_during_groups.values(), axis = 0)
-			lipids_ff_contacts_l2u_outside_profile_groups_avg = np.average(tmp_profile_l2u_outside_groups.values(), axis = 0)
-			lipids_ff_contacts_l2u_outside_profile_groups_std = np.std(tmp_profile_l2u_outside_groups.values(), axis = 0)
-	
+			lipids_ff_contacts_u2l_during_profile_groups_avg = {}
+			lipids_ff_contacts_u2l_during_profile_groups_std = {}
+			lipids_ff_contacts_l2u_during_profile_groups_avg = {}
+			lipids_ff_contacts_l2u_during_profile_groups_std = {}
+			lipids_ff_contacts_u2l_outside_profile_groups_avg = {}
+			lipids_ff_contacts_u2l_outside_profile_groups_std = {}			
+			lipids_ff_contacts_l2u_outside_profile_groups_avg = {}
+			lipids_ff_contacts_l2u_outside_profile_groups_std = {}
+			for g_index in range(0,group_gmax):
+				if len(tmp_profile_u2l_during_groups[g_index].values()) > 0:
+					lipids_ff_contacts_u2l_during_profile_groups_avg[g_index] = np.average(tmp_profile_u2l_during_groups[g_index].values(), axis = 0)
+					lipids_ff_contacts_u2l_during_profile_groups_std[g_index] = np.std(tmp_profile_u2l_during_groups[g_index].values(), axis = 0)
+				if len(tmp_profile_u2l_outside_groups[g_index].values()) > 0:
+					lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index] = np.average(tmp_profile_u2l_outside_groups[g_index].values(), axis = 0)
+					lipids_ff_contacts_u2l_outside_profile_groups_std[g_index] = np.std(tmp_profile_u2l_outside_groups[g_index].values(), axis = 0)
+				if len(tmp_profile_l2u_during_groups[g_index].values()) > 0:
+					lipids_ff_contacts_l2u_during_profile_groups_avg[g_index] = np.average(tmp_profile_l2u_during_groups[g_index].values(), axis = 0)
+					lipids_ff_contacts_l2u_during_profile_groups_std[g_index] = np.std(tmp_profile_l2u_during_groups[g_index].values(), axis = 0)
+				if len(tmp_profile_l2u_outside_groups[g_index].values()) > 0:
+					lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index] = np.average(tmp_profile_l2u_outside_groups[g_index].values(), axis = 0)
+					lipids_ff_contacts_l2u_outside_profile_groups_std[g_index] = np.std(tmp_profile_l2u_outside_groups[g_index].values(), axis = 0)
+			
 	return
 
 #=========================================================================================
@@ -2464,7 +2477,7 @@ def graph_ff_ctcts_by_group():
 	return
 
 #contacts distribution along local normal: overall
-def write_ff_ctcts_profile_all():
+def write_ff_ctcts_profile_during_all():
 	
 	#upper to lower
 	#==============
@@ -2546,9 +2559,137 @@ def write_ff_ctcts_profile_all():
 
 		#close file
 		output_stat.close()
+
+	#lower to upper
+	#==============
+	if numpy.size(ff_l2u_index)>0:
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u.stat'
+		output_stat = open(filename, 'w')	
+		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
+		output_stat.write("\n")
+	
+		#general info
+		output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+		output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+		if args.m_algorithm == "density":
+			output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+			output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+			output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+		elif args.m_algorithm == "min":
+			output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		else:
+			output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
+	
+		#caption
+		output_stat.write("\n")
+		output_stat.write("caption: average distribution of contacts along the local normal to the bilayer (%)\n")
+		
+		#build title bars
+		title_bar1 = "	"
+		title_bar2 = "---"
+		for n in bins_labels:
+			title_bar1 += "	" + str(n)
+			title_bar2 += "--------"
+
+		#averages
+		output_stat.write("\n")
+		output_stat.write("AVG\n")
+		output_stat.write(title_bar1 + "\n")
+		output_stat.write(title_bar2 + "\n")
+		results_type = {}
+		results_type["basic"] = "basic	"
+		results_type["polar"] = "polar	"
+		results_type["hydrophobic"] = "hydrophobic	"
+		results_type["bb_only"] = "bb_only	"
+		results_type["total"] = "total	"
+		for n in range(0, 2*bins_nb):
+			results_type["basic"] += "	" + str(round(lipids_ff_contacts_l2u_during_profile_avg[0,n],1))
+			results_type["polar"] += "	" + str(round(lipids_ff_contacts_l2u_during_profile_avg[1,n],1))
+			results_type["hydrophobic"] += "	" + str(round(lipids_ff_contacts_l2u_during_profile_avg[2,n],1))
+			results_type["bb_only"] += "	" + str(round(lipids_ff_contacts_l2u_during_profile_avg[3,n],1))
+			results_type["total"] += "	" + str(round(np.sum(lipids_ff_contacts_l2u_during_profile_avg[:,n]),1))
+		output_stat.write(results_type["basic"] + "\n")
+		output_stat.write(results_type["polar"] + "\n")
+		output_stat.write(results_type["hydrophobic"] + "\n")
+		output_stat.write(results_type["bb_only"] + "\n")
+		output_stat.write(title_bar2 + "\n")
+		output_stat.write(results_type["total"] + "\n")
+
+		#std
+		output_stat.write("\n")
+		output_stat.write("STD\n")
+		output_stat.write(title_bar1 + "\n")
+		output_stat.write(title_bar2 + "\n")
+		results_type = {}
+		results_type["basic"] = "basic	"
+		results_type["polar"] = "polar	"
+		results_type["hydrophobic"] = "hydrophobic	"
+		results_type["bb_only"] = "bb_only	"
+		for n in range(0, 2*bins_nb):
+			results_type["basic"] += "	" + str(round(lipids_ff_contacts_l2u_during_profile_std[0,n],2))
+			results_type["polar"] += "	" + str(round(lipids_ff_contacts_l2u_during_profile_std[1,n],2))
+			results_type["hydrophobic"] += "	" + str(round(lipids_ff_contacts_l2u_during_profile_std[2,n],2))
+			results_type["bb_only"] += "	" + str(round(lipids_ff_contacts_l2u_during_profile_std[3,n],2))
+		output_stat.write(results_type["basic"] + "\n")
+		output_stat.write(results_type["polar"] + "\n")
+		output_stat.write(results_type["hydrophobic"] + "\n")
+		output_stat.write(results_type["bb_only"] + "\n")
+
+		#close file
+		output_stat.close()	
+
+	return
+def graph_ff_ctcts_profile_during_all():
+
+	#upper to lower
+	#==============
+	if numpy.size(ff_u2l_index)>0:
+		#create filenames
+		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l.svg'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l.png'
+
+		#create figure
+		fig = plt.figure(figsize=(8, 6.2))
+		fig.suptitle("% of contacts along local normal during flip-flop")
+		xticks_pos = numpy.arange(1,nb_bins_z+1)
+		xticks_lab = []
+		for z_index in range(0,nb_bins_z-1):
+			xticks_lab.append(str(round(bins_mids[z_index],1)))
+		
+		#plot data: % of contacts
+		ax=fig.add_subplot(111)
+		if detail_opt==1:
+			list_keys=['total','pos','polar','hphobic','bb_only','prot_lower','prot_upper']
+		elif detail_opt==2:
+			list_keys=['total','pos','polar','hphobic','bb_only','prot_lower','prot_upper','lower_nff_head','lower_nff_tail','upper_nff_head','upper_nff_tail']
+		elif detail_opt==3:
+			list_keys=['total','pos','polar','hphobic','bb_only','prot_lower','prot_upper','lower_nff_head','lower_nff_tail','upper_nff_head','upper_nff_tail','water']
+		for key in list_keys:
+			plt.plot(bins_edges[:-1], ff_contacts_profile_during_hist_pc[l]['all_sizes'][key], color=type_col_line[key], linestyle=type_style[key], label=type_label[key])
+		plt.vlines(z_lower_avg,0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dashed')
+		plt.vlines(z_upper_avg,0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dashed')
+		plt.vlines(z_middle_avg,0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dashdot')
+		plt.vlines(z_lower_avg+cutoff_flipflop*(z_upper_avg-z_lower_avg),0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dotted')
+		plt.vlines(z_upper_avg-cutoff_flipflop*(z_upper_avg-z_lower_avg),0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dotted')
+		plt.xlim(z_lower_avg-20, z_upper_avg+20)
+		plt.ylim(0, int(math.ceil(max(plt.yticks()[0]))+1))
+		fontP.set_size("small")
+		ax.legend(prop=fontP)
+		
+		#save figure
+		if center_dist==1:
+			plt.xlabel('z coordinate centered on middle of bilayer [$\AA$]')
+		else:
+			plt.xlabel('z coordinate [$\AA$]')
+		plt.ylabel('% of number of particles')
+		fig.savefig(filename_png)
+		fig.savefig(filename_svg)
+		plt.close()
 	
 	return
-
 
 #contacts distribution along local normal: by groups
 #TO DO
