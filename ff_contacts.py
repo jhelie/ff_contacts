@@ -1203,7 +1203,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 		else:
 			c_size = np.size(cluster)
 			tmp_atindices_2_csize[c_sele.indices()] = c_size
-			tmp_atindices_2_csele.update(dict.fromkeys(c_sele.indices(), c_sele))
+			tmp_atindices_2_csele.update(dict.fromkeys(c_sele.indices(), tmp_c_sele_coordinates))
 			protein_TM_distribution_sizes[c_size-1] += c_size
 			if args.cluster_groups_file != "no":
 				protein_TM_distribution_groups[groups_sizes_dict[c_size]] += c_size
@@ -1327,7 +1327,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 						#store local relative positions of leaflets
 						z_upper_avg += cog_up_rotated - norm_z_middle
 						z_lower_avg += cog_lw_rotated - norm_z_middle
-						z_lealflets += 1
+						z_leaflets += 1
 
 						#rotate coordinates of ff lipid
 						ff_bead -= cluster_cog
@@ -1467,7 +1467,7 @@ def calc_stats_ctcts():
 					for t in range(0,4):
 						lipids_ff_contacts_during_pc_profile[l_index][t, :, c_size] = 100 * lipids_ff_contacts_during_nb_profile[l_index][t, :, c_size] / float(tmp_tot_c_size_during)
 					#store it in a format allowing easy averaging over ff lipids later
-					tmp_profile_u2l_during_sizes[l_index] = np.zeros(4,2*bins_nb)
+					tmp_profile_u2l_during_sizes[l_index] = np.zeros((4,2*bins_nb))
 					tmp_profile_u2l_during_sizes[l_index][:,:] = lipids_ff_contacts_during_pc_profile[l_index][:, :, c_size]
 				#outside ff
 				if  tmp_tot_c_size_outside > 0:
@@ -1475,7 +1475,7 @@ def calc_stats_ctcts():
 					for t in range(0,4):
 						lipids_ff_contacts_outside_pc_profile[l_index][t, :, c_size] = 100 * lipids_ff_contacts_outside_nb_profile[l_index][t, :, c_size] / float(tmp_tot_c_size_outside)
 					#store it in a format allowing easy averaging over ff lipids later
-					tmp_profile_u2l_outside_sizes[l_index] = np.zeros(4,2*bins_nb)
+					tmp_profile_u2l_outside_sizes[l_index] = np.zeros((4,2*bins_nb))
 					tmp_profile_u2l_outside_sizes[l_index][:,:] = lipids_ff_contacts_outside_pc_profile[l_index][:, :, c_size]
 
 			#for each group
@@ -1489,7 +1489,7 @@ def calc_stats_ctcts():
 						for t in range(0,4):
 							lipids_ff_contacts_during_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_during_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_during)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_u2l_during_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_u2l_during_groups[g_index][l_index] = np.zeros((4,2*bins_nb))
 						tmp_profile_u2l_during_groups[g_index][l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
 					#outside ff
 					if tmp_tot_g_index_outside > 0:
@@ -1497,7 +1497,7 @@ def calc_stats_ctcts():
 						for t in range(0,4):
 							lipids_ff_contacts_outside_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_outside_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_outside)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_u2l_outside_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_u2l_outside_groups[g_index][l_index] = np.zeros((4,2*bins_nb))
 						tmp_profile_u2l_outside_groups[g_index][l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
 
 	# for each flip-flopping lipids: l2u
@@ -1549,7 +1549,7 @@ def calc_stats_ctcts():
 					for t in range(0,4):
 						lipids_ff_contacts_during_pc_profile[l_index][t, :, c_size] = 100 * lipids_ff_contacts_during_nb_profile[l_index][t, :, c_size] / float(tmp_tot_c_size_during)
 					#store it in a format allowing easy averaging over ff lipids later
-					tmp_profile_l2u_during_sizes[l_index] = np.zeros(4,2*bins_nb)
+					tmp_profile_l2u_during_sizes[l_index] = np.zeros((4,2*bins_nb))
 					tmp_profile_l2u_during_sizes[l_index][:,:] = lipids_ff_contacts_during_pc_profile[l_index][:, :, c_size]				
 				#outside ff
 				if  tmp_tot_c_size_outside > 0:
@@ -1557,7 +1557,7 @@ def calc_stats_ctcts():
 					for t in range(0,4):
 						lipids_ff_contacts_outside_pc_profile[l_index][t, :, c_size] = 100 * lipids_ff_contacts_outside_nb_profile[l_index][t, :, c_size] / float(tmp_tot_c_size_outside)
 					#store it in a format allowing easy averaging over ff lipids later
-					tmp_profile_l2u_outside_sizes[l_index] = np.zeros(4,2*bins_nb)
+					tmp_profile_l2u_outside_sizes[l_index] = np.zeros((4,2*bins_nb))
 					tmp_profile_l2u_outside_sizes[l_index][:,:] = lipids_ff_contacts_outside_pc_profile[l_index][:, :, c_size]
 			
 			#for each group
@@ -1571,7 +1571,7 @@ def calc_stats_ctcts():
 						for t in range(0,4):
 							lipids_ff_contacts_during_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_during_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_during)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_l2u_during_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_l2u_during_groups[g_index][l_index] = np.zeros((4,2*bins_nb))
 						tmp_profile_l2u_during_groups[g_index][l_index][:,:] = lipids_ff_contacts_during_pc_groups_profile[l_index][:, :, g_index]		
 					#outside ff
 					if tmp_tot_g_index_outside > 0:
@@ -1579,7 +1579,7 @@ def calc_stats_ctcts():
 						for t in range(0,4):
 							lipids_ff_contacts_outside_pc_groups_profile[l_index][t, :, g_index] = 100 * lipids_ff_contacts_outside_nb_groups_profile[l_index][t, :, g_index] / float(tmp_tot_g_index_outside)
 						#store it in a format allowing easy averaging over ff lipids later
-						tmp_profile_l2u_outside_groups[g_index][l_index] = np.zeros(4,2*bins_nb)
+						tmp_profile_l2u_outside_groups[g_index][l_index] = np.zeros((4,2*bins_nb))
 						tmp_profile_l2u_outside_groups[g_index][l_index][:,:] = lipids_ff_contacts_outside_pc_groups_profile[l_index][:, :, g_index]
 
 	# averages
@@ -2511,7 +2511,7 @@ def write_ff_ctcts_profile_during_all():
 	
 	#upper to lower
 	#==============
-	if numpy.size(ff_u2l_index)>0:
+	if np.size(ff_u2l_index)>0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2592,7 +2592,7 @@ def write_ff_ctcts_profile_during_all():
 
 	#lower to upper
 	#==============
-	if numpy.size(ff_l2u_index)>0:
+	if np.size(ff_l2u_index)>0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2676,7 +2676,7 @@ def write_ff_ctcts_profile_outside_all():
 	
 	#upper to lower
 	#==============
-	if numpy.size(ff_u2l_index)>0:
+	if np.size(ff_u2l_index)>0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2757,7 +2757,7 @@ def write_ff_ctcts_profile_outside_all():
 
 	#lower to upper
 	#==============
-	if numpy.size(ff_l2u_index)>0:
+	if np.size(ff_l2u_index)>0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2841,7 +2841,7 @@ def graph_ff_ctcts_profile_during_all():
 
 	#upper to lower
 	#==============
-	if numpy.size(ff_u2l_index)>0:
+	if np.size(ff_u2l_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_all.png'
@@ -2882,7 +2882,7 @@ def graph_ff_ctcts_profile_during_all():
 	
 	#lower to upper
 	#==============
-	if numpy.size(ff_l2u_index)>0:
+	if np.size(ff_l2u_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_all.png'
@@ -2926,7 +2926,7 @@ def graph_ff_ctcts_profile_outside_all():
 
 	#upper to lower
 	#==============
-	if numpy.size(ff_u2l_index)>0:
+	if np.size(ff_u2l_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_all.png'
@@ -2967,7 +2967,7 @@ def graph_ff_ctcts_profile_outside_all():
 	
 	#lower to upper
 	#==============
-	if numpy.size(ff_l2u_index)>0:
+	if np.size(ff_l2u_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_all.png'
@@ -3013,7 +3013,7 @@ def write_ff_ctcts_profile_during_groups():
 	
 	#upper to lower
 	#==============
-	if numpy.size(ff_u2l_index)>0:
+	if np.size(ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
 			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.stat'
@@ -3097,7 +3097,7 @@ def write_ff_ctcts_profile_during_groups():
 
 	#lower to upper
 	#==============
-	if numpy.size(ff_l2u_index)>0:
+	if np.size(ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
 			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.stat'
@@ -3184,7 +3184,7 @@ def write_ff_ctcts_profile_outside_groups():
 	
 	#upper to lower
 	#==============
-	if numpy.size(ff_u2l_index)>0:
+	if np.size(ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
 			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.stat'
@@ -3268,7 +3268,7 @@ def write_ff_ctcts_profile_outside_groups():
 
 	#lower to upper
 	#==============
-	if numpy.size(ff_l2u_index)>0:
+	if np.size(ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
 			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.stat'
@@ -3355,7 +3355,7 @@ def graph_ff_ctcts_profile_during_groups():
 
 	#upper to lower
 	#==============
-	if numpy.size(ff_u2l_index)>0:
+	if np.size(ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
@@ -3396,7 +3396,7 @@ def graph_ff_ctcts_profile_during_groups():
 		
 	#lower to upper
 	#==============
-	if numpy.size(ff_l2u_index)>0:
+	if np.size(ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
@@ -3440,7 +3440,7 @@ def graph_ff_ctcts_profile_outside_groups():
 
 	#upper to lower
 	#==============
-	if numpy.size(ff_u2l_index)>0:
+	if np.size(ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
@@ -3481,7 +3481,7 @@ def graph_ff_ctcts_profile_outside_groups():
 		
 	#lower to upper
 	#==============
-	if numpy.size(ff_l2u_index)>0:
+	if np.size(ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
