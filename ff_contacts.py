@@ -2771,17 +2771,17 @@ def graph_ff_ctcts_profile_during_all():
 		
 		#plot data: % of contacts
 		ax = fig.add_subplot(111)
-		plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+		plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 2.0, label = 'basic')
 		plt.fill_between(bins_range, lipids_ff_contacts_u2l_during_profile_avg[0,:] - lipids_ff_contacts_u2l_during_profile_std[0,:], lipids_ff_contacts_u2l_during_profile_avg[0,:] + lipids_ff_contacts_u2l_during_profile_std[0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+		plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 2.0, label = 'polar')
 		plt.fill_between(bins_range, lipids_ff_contacts_u2l_during_profile_avg[1,:] - lipids_ff_contacts_u2l_during_profile_std[1,:], lipids_ff_contacts_u2l_during_profile_avg[1,:] + lipids_ff_contacts_u2l_during_profile_std[1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+		plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 2.0, label = 'hydrophobic')
 		plt.fill_between(bins_range, lipids_ff_contacts_u2l_during_profile_avg[2,:] - lipids_ff_contacts_u2l_during_profile_std[2,:], lipids_ff_contacts_u2l_during_profile_avg[2,:] + lipids_ff_contacts_u2l_during_profile_std[2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+		plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 2.0, label = 'bb_only')
 		plt.fill_between(bins_range, lipids_ff_contacts_u2l_during_profile_avg[3,:] - lipids_ff_contacts_u2l_during_profile_std[3,:], lipids_ff_contacts_u2l_during_profile_avg[3,:] + lipids_ff_contacts_u2l_during_profile_std[3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 
 		#plot data: limits
-		tmp_max = np.max(np.sum(lipids_ff_contacts_u2l_during_profile_avg, axis = 0)) + 2
+		tmp_max = np.max(np.sum(lipids_ff_contacts_u2l_during_profile_avg, axis = 0)) + 0.5
 		plt.vlines(z_lower_avg, 0, tmp_max, linestyles = 'dashed')
 		plt.vlines(z_upper_avg, 0, tmp_max, linestyles = 'dashed')
 		plt.vlines(0, 0, tmp_max, linestyles = 'dashdot')
@@ -2815,17 +2815,17 @@ def graph_ff_ctcts_profile_during_all():
 		
 		#plot data: % of contacts
 		ax = fig.add_subplot(111)
-		plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+		plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 2.0, label = 'basic')
 		plt.fill_between(bins_range, lipids_ff_contacts_l2u_during_profile_avg[0,:] - lipids_ff_contacts_l2u_during_profile_std[0,:], lipids_ff_contacts_l2u_during_profile_avg[0,:] + lipids_ff_contacts_l2u_during_profile_std[0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+		plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 2.0, label = 'polar')
 		plt.fill_between(bins_range, lipids_ff_contacts_l2u_during_profile_avg[1,:] - lipids_ff_contacts_l2u_during_profile_std[1,:], lipids_ff_contacts_l2u_during_profile_avg[1,:] + lipids_ff_contacts_l2u_during_profile_std[1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+		plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 2.0, label = 'hydrophobic')
 		plt.fill_between(bins_range, lipids_ff_contacts_l2u_during_profile_avg[2,:] - lipids_ff_contacts_l2u_during_profile_std[2,:], lipids_ff_contacts_l2u_during_profile_avg[2,:] + lipids_ff_contacts_l2u_during_profile_std[2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+		plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 2.0, label = 'bb_only')
 		plt.fill_between(bins_range, lipids_ff_contacts_l2u_during_profile_avg[3,:] - lipids_ff_contacts_l2u_during_profile_std[3,:], lipids_ff_contacts_l2u_during_profile_avg[3,:] + lipids_ff_contacts_l2u_during_profile_std[3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 
 		#plot data: limits
-		tmp_max = np.max(np.sum(lipids_ff_contacts_l2u_during_profile_avg, axis = 0)) + 2
+		tmp_max = np.max(np.sum(lipids_ff_contacts_l2u_during_profile_avg, axis = 0)) + 0.5
 		plt.vlines(z_lower_avg, 0, tmp_max, linestyles = 'dashed')
 		plt.vlines(z_upper_avg, 0, tmp_max, linestyles = 'dashed')
 		plt.vlines(0, 0, tmp_max, linestyles = 'dashdot')
@@ -2862,17 +2862,17 @@ def graph_ff_ctcts_profile_outside_all():
 		
 		#plot data: % of contacts
 		ax = fig.add_subplot(111)
-		plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+		plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 2.0, label = 'basic')
 		plt.fill_between(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[0,:] - lipids_ff_contacts_u2l_outside_profile_std[0,:], lipids_ff_contacts_u2l_outside_profile_avg[0,:] + lipids_ff_contacts_u2l_outside_profile_std[0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+		plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 2.0, label = 'polar')
 		plt.fill_between(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[1,:] - lipids_ff_contacts_u2l_outside_profile_std[1,:], lipids_ff_contacts_u2l_outside_profile_avg[1,:] + lipids_ff_contacts_u2l_outside_profile_std[1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+		plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 2.0, label = 'hydrophobic')
 		plt.fill_between(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[2,:] - lipids_ff_contacts_u2l_outside_profile_std[2,:], lipids_ff_contacts_u2l_outside_profile_avg[2,:] + lipids_ff_contacts_u2l_outside_profile_std[2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+		plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 2.0, label = 'bb_only')
 		plt.fill_between(bins_range, lipids_ff_contacts_u2l_outside_profile_avg[3,:] - lipids_ff_contacts_u2l_outside_profile_std[3,:], lipids_ff_contacts_u2l_outside_profile_avg[3,:] + lipids_ff_contacts_u2l_outside_profile_std[3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 
 		#plot data: limits
-		tmp_max = np.max(np.sum(lipids_ff_contacts_u2l_outside_profile_avg, axis = 0)) + 2
+		tmp_max = np.max(np.sum(lipids_ff_contacts_u2l_outside_profile_avg, axis = 0)) + 0.5
 		plt.vlines(z_lower_avg, 0, tmp_max, linestyles = 'dashed')
 		plt.vlines(z_upper_avg, 0, tmp_max, linestyles = 'dashed')
 		plt.vlines(0, 0, tmp_max, linestyles = 'dashdot')
@@ -2906,17 +2906,17 @@ def graph_ff_ctcts_profile_outside_all():
 		
 		#plot data: % of contacts
 		ax = fig.add_subplot(111)
-		plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+		plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 2.0, label = 'basic')
 		plt.fill_between(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[0,:] - lipids_ff_contacts_l2u_outside_profile_std[0,:], lipids_ff_contacts_l2u_outside_profile_avg[0,:] + lipids_ff_contacts_l2u_outside_profile_std[0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+		plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 2.0, label = 'polar')
 		plt.fill_between(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[1,:] - lipids_ff_contacts_l2u_outside_profile_std[1,:], lipids_ff_contacts_l2u_outside_profile_avg[1,:] + lipids_ff_contacts_l2u_outside_profile_std[1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+		plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 2.0, label = 'hydrophobic')
 		plt.fill_between(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[2,:] - lipids_ff_contacts_l2u_outside_profile_std[2,:], lipids_ff_contacts_l2u_outside_profile_avg[2,:] + lipids_ff_contacts_l2u_outside_profile_std[2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
-		plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+		plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 2.0, label = 'bb_only')
 		plt.fill_between(bins_range, lipids_ff_contacts_l2u_outside_profile_avg[3,:] - lipids_ff_contacts_l2u_outside_profile_std[3,:], lipids_ff_contacts_l2u_outside_profile_avg[3,:] + lipids_ff_contacts_l2u_outside_profile_std[3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 
 		#plot data: limits
-		tmp_max = np.max(np.sum(lipids_ff_contacts_l2u_outside_profile_avg, axis = 0)) + 2
+		tmp_max = np.max(np.sum(lipids_ff_contacts_l2u_outside_profile_avg, axis = 0)) + 0.5
 		plt.vlines(z_lower_avg, 0, tmp_max, linestyles = 'dashed')
 		plt.vlines(z_upper_avg, 0, tmp_max, linestyles = 'dashed')
 		plt.vlines(0, 0, tmp_max, linestyles = 'dashdot')
@@ -3185,7 +3185,7 @@ def graph_ff_ctcts_profile_during_groups():
 	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
-			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
+			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
 			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/png/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
@@ -3204,7 +3204,7 @@ def graph_ff_ctcts_profile_during_groups():
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][3,:] - lipids_ff_contacts_u2l_during_profile_groups_std[g_index][3,:], lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][3,:] + lipids_ff_contacts_u2l_during_profile_groups_std[g_index][3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 	
 			#plot data: limits
-			tmp_max = np.max(np.sum(lipids_ff_contacts_u2l_during_profile_groups_avg[g_index], axis = 0)) + 2
+			tmp_max = np.max(np.sum(lipids_ff_contacts_u2l_during_profile_groups_avg[g_index], axis = 0)) + 0.5
 			plt.vlines(z_lower_avg, 0, tmp_max, linestyles = 'dashed')
 			plt.vlines(z_upper_avg, 0, tmp_max, linestyles = 'dashed')
 			plt.vlines(0, 0, tmp_max, linestyles = 'dashdot')
@@ -3230,7 +3230,7 @@ def graph_ff_ctcts_profile_during_groups():
 	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
-			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
+			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
 			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/png/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
@@ -3249,7 +3249,7 @@ def graph_ff_ctcts_profile_during_groups():
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][3,:] - lipids_ff_contacts_l2u_during_profile_groups_std[g_index][3,:], lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][3,:] + lipids_ff_contacts_l2u_during_profile_groups_std[g_index][3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 	
 			#plot data: limits
-			tmp_max = np.max(np.sum(lipids_ff_contacts_l2u_during_profile_groups_avg[g_index], axis = 0)) + 2
+			tmp_max = np.max(np.sum(lipids_ff_contacts_l2u_during_profile_groups_avg[g_index], axis = 0)) + 0.5
 			plt.vlines(z_lower_avg, 0, tmp_max, linestyles = 'dashed')
 			plt.vlines(z_upper_avg, 0, tmp_max, linestyles = 'dashed')
 			plt.vlines(0, 0, tmp_max, linestyles = 'dashdot')
@@ -3278,7 +3278,7 @@ def graph_ff_ctcts_profile_outside_groups():
 	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
-			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
+			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
 			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/png/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
@@ -3297,7 +3297,7 @@ def graph_ff_ctcts_profile_outside_groups():
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][3,:] - lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][3,:], lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][3,:] + lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 	
 			#plot data: limits
-			tmp_max = np.max(np.sum(lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index], axis = 0)) + 2
+			tmp_max = np.max(np.sum(lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index], axis = 0)) + 0.5
 			plt.vlines(z_lower_avg, 0, tmp_max, linestyles = 'dashed')
 			plt.vlines(z_upper_avg, 0, tmp_max, linestyles = 'dashed')
 			plt.vlines(0, 0, tmp_max, linestyles = 'dashdot')
@@ -3323,7 +3323,7 @@ def graph_ff_ctcts_profile_outside_groups():
 	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
-			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
+			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
 			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/png/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
@@ -3342,7 +3342,7 @@ def graph_ff_ctcts_profile_outside_groups():
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][3,:] - lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][3,:], lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][3,:] + lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 	
 			#plot data: limits
-			tmp_max = np.max(np.sum(lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index], axis = 0)) + 2
+			tmp_max = np.max(np.sum(lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index], axis = 0)) + 0.5
 			plt.vlines(z_lower_avg, 0, tmp_max, linestyles = 'dashed')
 			plt.vlines(z_upper_avg, 0, tmp_max, linestyles = 'dashed')
 			plt.vlines(0, 0, tmp_max, linestyles = 'dashdot')
