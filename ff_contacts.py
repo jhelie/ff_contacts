@@ -888,9 +888,10 @@ def data_struct_time():
 def data_ff_contacts():
 
 	#create residues selection strings
-	global residues_types_sele_string
+	global residues_types_sele_string, residues_types_colours
+	residues_types_colours = {}
 	residues_types_sele_string = {}
-
+	
 	#TO DO: make these definitions user selectable
 	type_res={}
 	type_res["basic"]=['ARG','LYS']
@@ -899,6 +900,12 @@ def data_ff_contacts():
 	type_res["hydrophobic"]=['VAL','ILE','LEU','MET','PHE','PRO','CYS','TYR','TRP']
 	type_res["bb_only"]=['ALA','GLY']
 	all_types = ["basic","polar","hydrophobic","bb_only"]
+
+	residues_types_colours["basic"] = "b"
+	residues_types_colours["acidic"] = "m"
+	residues_types_colours["polar"] = "g"
+	residues_types_colours["hydrophobic"] = "r"
+	residues_types_colours["bb_only"] = "k"
 
 	#create selection string for each type: residues
 	residues_types_sele_string = {}
@@ -956,6 +963,12 @@ def data_ff_contacts():
 	#store contacts: profile
 	#-----------------------
 	if args.profile:
+		#relative leaflets positions
+		global z_upper_avg, z_lower_avg, z_leaflets
+		z_upper_avg = 0
+		z_lower_avg = 0
+		z_leaflets = 0
+
 		#determine number of bins
 		global bins_nb, bins_nb_max, bins_labels
 		bins_nb = int(np.floor(40/float(args.slices_thick))) 			#actually it's twice that as (-bins_nb,bins_nb) has to be filled
@@ -1136,12 +1149,12 @@ def detect_clusters_density(dist, box_dim):
 	return groups
 def identify_ff_contacts(box_dim, f_time, f_nb):
 
-	global lipids_ff_contacts_during_nb
-	global lipids_ff_contacts_outside_nb
 	global protein_TM_distribution_sizes
+	global lipids_ff_contacts_during_nb, lipids_ff_contacts_outside_nb
 	if args.cluster_groups_file != "no":
 		global protein_TM_distribution_groups
 	if args.profile:
+		global z_upper_avg, z_lower_avg, z_leaflets
 		loc_z_axis = np.array([0,0,1])
 		loc_z_axis = loc_z_axis.reshape((3,1))
 
@@ -1311,6 +1324,11 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 						cog_lw_rotated = np.median(tmp_lip_coords_lw_within_rotated, axis = 0)
 						norm_z_middle = cog_lw_rotated[2] + (cog_up_rotated[2] - cog_lw_rotated[2])/float(2)
 
+						#store local relative positions of leaflets
+						z_upper_avg += cog_up_rotated - norm_z_middle
+						z_lower_avg += cog_lw_rotated - norm_z_middle
+						z_lealflets += 1
+
 						#rotate coordinates of ff lipid
 						ff_bead -= cluster_cog
 						ff_bead = np.dot(norm_rot, ff_bead.T).T
@@ -1321,6 +1339,11 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 						tmp_zl = np.average(tmp_lip_coords["lower"], axis = 0)[2]
 						norm_z_middle = tmp_zl + (tmp_zu - tmp_zl)/float(2)	
 	
+						#store local relative positions of leaflets
+						z_upper_avg += tmp_ul - norm_z_middle
+						z_lower_avg += tmp_zl - norm_z_middle
+						z_lealflets += 1
+						
 					#find which bin along the normal between of local bilayer the ff bead is at
 					bin_rel = np.floor((ff_bead[:,2] - norm_z_middle)/float(args.slices_thick)).astype(int)
 					if abs(bin_rel) < bins_nb_max:
@@ -1356,6 +1379,11 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 #=========================================================================================
 
 def calc_stats_ctcts():
+	
+	if args.profile:
+		global z_lower_avg, z_upper_avg
+		z_upper_avg /= float(z_leaflets)
+		z_lower_avg /= float(z_leaflets)
 	
 	#calculate TM proteins distribution
 	#==================================
@@ -2476,13 +2504,13 @@ def graph_ff_ctcts_by_group():
 	
 	return
 
-#contacts distribution along local normal: overall
+#contacts distribution along local normal: all sizes
 def write_ff_ctcts_profile_during_all():
 	
 	#upper to lower
 	#==============
 	if numpy.size(ff_u2l_index)>0:
-		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l.stat'
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		output_stat.write("\n")
@@ -2563,7 +2591,7 @@ def write_ff_ctcts_profile_during_all():
 	#lower to upper
 	#==============
 	if numpy.size(ff_l2u_index)>0:
-		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u.stat'
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		output_stat.write("\n")
@@ -2642,57 +2670,344 @@ def write_ff_ctcts_profile_during_all():
 		output_stat.close()	
 
 	return
+def write_ff_ctcts_profile_outside_all():
+	
+	#upper to lower
+	#==============
+	if numpy.size(ff_u2l_index)>0:
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside.stat'
+		output_stat = open(filename, 'w')	
+		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
+		output_stat.write("\n")
+	
+		#general info
+		output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+		output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+		if args.m_algorithm == "density":
+			output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+			output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+			output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+		elif args.m_algorithm == "min":
+			output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		else:
+			output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
+	
+		#caption
+		output_stat.write("\n")
+		output_stat.write("caption: average distribution of contacts along the local normal to the bilayer (%)\n")
+		
+		#build title bars
+		title_bar1 = "	"
+		title_bar2 = "---"
+		for n in bins_labels:
+			title_bar1 += "	" + str(n)
+			title_bar2 += "--------"
+
+		#averages
+		output_stat.write("\n")
+		output_stat.write("AVG\n")
+		output_stat.write(title_bar1 + "\n")
+		output_stat.write(title_bar2 + "\n")
+		results_type = {}
+		results_type["basic"] = "basic	"
+		results_type["polar"] = "polar	"
+		results_type["hydrophobic"] = "hydrophobic	"
+		results_type["bb_only"] = "bb_only	"
+		results_type["total"] = "total	"
+		for n in range(0, 2*bins_nb):
+			results_type["basic"] += "	" + str(round(lipids_ff_contacts_u2l_outside_profile_avg[0,n],1))
+			results_type["polar"] += "	" + str(round(lipids_ff_contacts_u2l_outside_profile_avg[1,n],1))
+			results_type["hydrophobic"] += "	" + str(round(lipids_ff_contacts_u2l_outside_profile_avg[2,n],1))
+			results_type["bb_only"] += "	" + str(round(lipids_ff_contacts_u2l_outside_profile_avg[3,n],1))
+			results_type["total"] += "	" + str(round(np.sum(lipids_ff_contacts_u2l_outside_profile_avg[:,n]),1))
+		output_stat.write(results_type["basic"] + "\n")
+		output_stat.write(results_type["polar"] + "\n")
+		output_stat.write(results_type["hydrophobic"] + "\n")
+		output_stat.write(results_type["bb_only"] + "\n")
+		output_stat.write(title_bar2 + "\n")
+		output_stat.write(results_type["total"] + "\n")
+
+		#std
+		output_stat.write("\n")
+		output_stat.write("STD\n")
+		output_stat.write(title_bar1 + "\n")
+		output_stat.write(title_bar2 + "\n")
+		results_type = {}
+		results_type["basic"] = "basic	"
+		results_type["polar"] = "polar	"
+		results_type["hydrophobic"] = "hydrophobic	"
+		results_type["bb_only"] = "bb_only	"
+		for n in range(0, 2*bins_nb):
+			results_type["basic"] += "	" + str(round(lipids_ff_contacts_u2l_outside_profile_std[0,n],2))
+			results_type["polar"] += "	" + str(round(lipids_ff_contacts_u2l_outside_profile_std[1,n],2))
+			results_type["hydrophobic"] += "	" + str(round(lipids_ff_contacts_u2l_outside_profile_std[2,n],2))
+			results_type["bb_only"] += "	" + str(round(lipids_ff_contacts_u2l_outside_profile_std[3,n],2))
+		output_stat.write(results_type["basic"] + "\n")
+		output_stat.write(results_type["polar"] + "\n")
+		output_stat.write(results_type["hydrophobic"] + "\n")
+		output_stat.write(results_type["bb_only"] + "\n")
+
+		#close file
+		output_stat.close()
+
+	#lower to upper
+	#==============
+	if numpy.size(ff_l2u_index)>0:
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside.stat'
+		output_stat = open(filename, 'w')	
+		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
+		output_stat.write("\n")
+	
+		#general info
+		output_stat.write("-nb of proteins: " + str(proteins_nb) + "\n")
+		output_stat.write("-nb frames read: " + str(nb_frames_to_process) + " (" + str(nb_frames_xtc) + " frames in xtc, step=" + str(args.frames_dt) + ")\n")
+		if args.m_algorithm == "density":
+			output_stat.write("-method cluster: density based algorithm using distances between proteins COGs\n")	
+			output_stat.write(" -> radius search: " + str(args.dbscan_dist) + " Angstrom\n")
+			output_stat.write(" -> nb neighbours: " + str(args.dbscan_nb) + "\n")
+		elif args.m_algorithm == "min":
+			output_stat.write("-method cluster: connectivity algorithm using minimum distance between proteins\n")
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		else:
+			output_stat.write("-method cluster: connectivity algorithm using distance between the center of geometry of proteins\n")	
+			output_stat.write(" -> connect cutoff: " + str(args.nx_cutoff) + " Angstrom\n")
+		output_stat.write("-cutoff distance for protein-lipid contact: " + str(args.cutoff_pl) + " Angstrom\n")
+	
+		#caption
+		output_stat.write("\n")
+		output_stat.write("caption: average distribution of contacts along the local normal to the bilayer (%)\n")
+		
+		#build title bars
+		title_bar1 = "	"
+		title_bar2 = "---"
+		for n in bins_labels:
+			title_bar1 += "	" + str(n)
+			title_bar2 += "--------"
+
+		#averages
+		output_stat.write("\n")
+		output_stat.write("AVG\n")
+		output_stat.write(title_bar1 + "\n")
+		output_stat.write(title_bar2 + "\n")
+		results_type = {}
+		results_type["basic"] = "basic	"
+		results_type["polar"] = "polar	"
+		results_type["hydrophobic"] = "hydrophobic	"
+		results_type["bb_only"] = "bb_only	"
+		results_type["total"] = "total	"
+		for n in range(0, 2*bins_nb):
+			results_type["basic"] += "	" + str(round(lipids_ff_contacts_l2u_outside_profile_avg[0,n],1))
+			results_type["polar"] += "	" + str(round(lipids_ff_contacts_l2u_outside_profile_avg[1,n],1))
+			results_type["hydrophobic"] += "	" + str(round(lipids_ff_contacts_l2u_outside_profile_avg[2,n],1))
+			results_type["bb_only"] += "	" + str(round(lipids_ff_contacts_l2u_outside_profile_avg[3,n],1))
+			results_type["total"] += "	" + str(round(np.sum(lipids_ff_contacts_l2u_outside_profile_avg[:,n]),1))
+		output_stat.write(results_type["basic"] + "\n")
+		output_stat.write(results_type["polar"] + "\n")
+		output_stat.write(results_type["hydrophobic"] + "\n")
+		output_stat.write(results_type["bb_only"] + "\n")
+		output_stat.write(title_bar2 + "\n")
+		output_stat.write(results_type["total"] + "\n")
+
+		#std
+		output_stat.write("\n")
+		output_stat.write("STD\n")
+		output_stat.write(title_bar1 + "\n")
+		output_stat.write(title_bar2 + "\n")
+		results_type = {}
+		results_type["basic"] = "basic	"
+		results_type["polar"] = "polar	"
+		results_type["hydrophobic"] = "hydrophobic	"
+		results_type["bb_only"] = "bb_only	"
+		for n in range(0, 2*bins_nb):
+			results_type["basic"] += "	" + str(round(lipids_ff_contacts_l2u_outside_profile_std[0,n],2))
+			results_type["polar"] += "	" + str(round(lipids_ff_contacts_l2u_outside_profile_std[1,n],2))
+			results_type["hydrophobic"] += "	" + str(round(lipids_ff_contacts_l2u_outside_profile_std[2,n],2))
+			results_type["bb_only"] += "	" + str(round(lipids_ff_contacts_l2u_outside_profile_std[3,n],2))
+		output_stat.write(results_type["basic"] + "\n")
+		output_stat.write(results_type["polar"] + "\n")
+		output_stat.write(results_type["hydrophobic"] + "\n")
+		output_stat.write(results_type["bb_only"] + "\n")
+
+		#close file
+		output_stat.close()	
+
+	return
 def graph_ff_ctcts_profile_during_all():
 
 	#upper to lower
 	#==============
 	if numpy.size(ff_u2l_index)>0:
 		#create filenames
-		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l.svg'
-		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l.png'
+		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during.svg'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during.png'
 
 		#create figure
 		fig = plt.figure(figsize=(8, 6.2))
-		fig.suptitle("% of contacts along local normal during flip-flop")
-		xticks_pos = numpy.arange(1,nb_bins_z+1)
-		xticks_lab = []
-		for z_index in range(0,nb_bins_z-1):
-			xticks_lab.append(str(round(bins_mids[z_index],1)))
+		fig.suptitle("average distribution of contacts along the local normal to the bilayer")
 		
 		#plot data: % of contacts
-		ax=fig.add_subplot(111)
-		if detail_opt==1:
-			list_keys=['total','pos','polar','hphobic','bb_only','prot_lower','prot_upper']
-		elif detail_opt==2:
-			list_keys=['total','pos','polar','hphobic','bb_only','prot_lower','prot_upper','lower_nff_head','lower_nff_tail','upper_nff_head','upper_nff_tail']
-		elif detail_opt==3:
-			list_keys=['total','pos','polar','hphobic','bb_only','prot_lower','prot_upper','lower_nff_head','lower_nff_tail','upper_nff_head','upper_nff_tail','water']
-		for key in list_keys:
-			plt.plot(bins_edges[:-1], ff_contacts_profile_during_hist_pc[l]['all_sizes'][key], color=type_col_line[key], linestyle=type_style[key], label=type_label[key])
-		plt.vlines(z_lower_avg,0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dashed')
-		plt.vlines(z_upper_avg,0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dashed')
-		plt.vlines(z_middle_avg,0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dashdot')
-		plt.vlines(z_lower_avg+cutoff_flipflop*(z_upper_avg-z_lower_avg),0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dotted')
-		plt.vlines(z_upper_avg-cutoff_flipflop*(z_upper_avg-z_lower_avg),0,int(math.ceil(max(plt.yticks()[0]))), linestyles='dotted')
-		plt.xlim(z_lower_avg-20, z_upper_avg+20)
-		plt.ylim(0, int(math.ceil(max(plt.yticks()[0]))+1))
+		ax = fig.add_subplot(111)
+
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_u2l_during_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_u2l_during_profile_avg[0,:] - lipids_ff_contacts_u2l_during_profile_std[0,:], lipids_ff_contacts_u2l_during_profile_avg[0,:] + lipids_ff_contacts_u2l_during_profile_std[0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_u2l_during_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_u2l_during_profile_avg[1,:] - lipids_ff_contacts_u2l_during_profile_std[1,:], lipids_ff_contacts_u2l_during_profile_avg[1,:] + lipids_ff_contacts_u2l_during_profile_std[1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_u2l_during_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_u2l_during_profile_avg[2,:] - lipids_ff_contacts_u2l_during_profile_std[2,:], lipids_ff_contacts_u2l_during_profile_avg[2,:] + lipids_ff_contacts_u2l_during_profile_std[2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_u2l_during_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_u2l_during_profile_avg[3,:] - lipids_ff_contacts_u2l_during_profile_std[3,:], lipids_ff_contacts_u2l_during_profile_avg[3,:] + lipids_ff_contacts_u2l_during_profile_std[3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
+
+		#plot data: limits
+		plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
+		plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
+		plt.vlines(0, 0, 50, linestyles = 'dashdot')
+		ax.set_xlim(min(bins_labels), max(bins_labels))
+		ax.set_ylim(0, 50)
+
+		#formatting
 		fontP.set_size("small")
 		ax.legend(prop=fontP)
+		plt.xlabel('z coordinate centered on middle of bilayer [$\AA$]')
+		plt.ylabel('contacts distribution (%)')
 		
 		#save figure
-		if center_dist==1:
-			plt.xlabel('z coordinate centered on middle of bilayer [$\AA$]')
-		else:
-			plt.xlabel('z coordinate [$\AA$]')
-		plt.ylabel('% of number of particles')
 		fig.savefig(filename_png)
 		fig.savefig(filename_svg)
 		plt.close()
 	
+	#lower to upper
+	#==============
+	if numpy.size(ff_l2u_index)>0:
+		#create filenames
+		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during.svg'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during.png'
+
+		#create figure
+		fig = plt.figure(figsize=(8, 6.2))
+		fig.suptitle("average distribution of contacts along the local normal to the bilayer")
+		
+		#plot data: % of contacts
+		ax = fig.add_subplot(111)
+
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_l2u_during_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_l2u_during_profile_avg[0,:] - lipids_ff_contacts_l2u_during_profile_std[0,:], lipids_ff_contacts_l2u_during_profile_avg[0,:] + lipids_ff_contacts_l2u_during_profile_std[0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_l2u_during_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_l2u_during_profile_avg[1,:] - lipids_ff_contacts_l2u_during_profile_std[1,:], lipids_ff_contacts_l2u_during_profile_avg[1,:] + lipids_ff_contacts_l2u_during_profile_std[1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_l2u_during_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_l2u_during_profile_avg[2,:] - lipids_ff_contacts_l2u_during_profile_std[2,:], lipids_ff_contacts_l2u_during_profile_avg[2,:] + lipids_ff_contacts_l2u_during_profile_std[2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_l2u_during_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_l2u_during_profile_avg[3,:] - lipids_ff_contacts_l2u_during_profile_std[3,:], lipids_ff_contacts_l2u_during_profile_avg[3,:] + lipids_ff_contacts_l2u_during_profile_std[3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
+
+		#plot data: limits
+		plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
+		plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
+		plt.vlines(0, 0, 50, linestyles = 'dashdot')
+		ax.set_xlim(min(bins_labels), max(bins_labels))
+		ax.set_ylim(0, 50)
+
+		#formatting
+		fontP.set_size("small")
+		ax.legend(prop=fontP)
+		plt.xlabel('z coordinate centered on middle of bilayer [$\AA$]')
+		plt.ylabel('contacts distribution (%)')
+		
+		#save figure
+		fig.savefig(filename_png)
+		fig.savefig(filename_svg)
+		plt.close()
+
+	return
+def graph_ff_ctcts_profile_outside_all():
+
+	#upper to lower
+	#==============
+	if numpy.size(ff_u2l_index)>0:
+		#create filenames
+		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside.svg'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside.png'
+
+		#create figure
+		fig = plt.figure(figsize=(8, 6.2))
+		fig.suptitle("average distribution of contacts along the local normal to the bilayer")
+		
+		#plot data: % of contacts
+		ax = fig.add_subplot(111)
+
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_u2l_outside_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_u2l_outside_profile_avg[0,:] - lipids_ff_contacts_u2l_outside_profile_std[0,:], lipids_ff_contacts_u2l_outside_profile_avg[0,:] + lipids_ff_contacts_u2l_outside_profile_std[0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_u2l_outside_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_u2l_outside_profile_avg[1,:] - lipids_ff_contacts_u2l_outside_profile_std[1,:], lipids_ff_contacts_u2l_outside_profile_avg[1,:] + lipids_ff_contacts_u2l_outside_profile_std[1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_u2l_outside_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_u2l_outside_profile_avg[2,:] - lipids_ff_contacts_u2l_outside_profile_std[2,:], lipids_ff_contacts_u2l_outside_profile_avg[2,:] + lipids_ff_contacts_u2l_outside_profile_std[2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_u2l_outside_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_u2l_outside_profile_avg[3,:] - lipids_ff_contacts_u2l_outside_profile_std[3,:], lipids_ff_contacts_u2l_outside_profile_avg[3,:] + lipids_ff_contacts_u2l_outside_profile_std[3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
+
+		#plot data: limits
+		plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
+		plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
+		plt.vlines(0, 0, 50, linestyles = 'dashdot')
+		ax.set_xlim(min(bins_labels), max(bins_labels))
+		ax.set_ylim(0, 50)
+
+		#formatting
+		fontP.set_size("small")
+		ax.legend(prop=fontP)
+		plt.xlabel('z coordinate centered on middle of bilayer [$\AA$]')
+		plt.ylabel('contacts distribution (%)')
+		
+		#save figure
+		fig.savefig(filename_png)
+		fig.savefig(filename_svg)
+		plt.close()
+	
+	#lower to upper
+	#==============
+	if numpy.size(ff_l2u_index)>0:
+		#create filenames
+		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside.svg'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside.png'
+
+		#create figure
+		fig = plt.figure(figsize=(8, 6.2))
+		fig.suptitle("average distribution of contacts along the local normal to the bilayer")
+		
+		#plot data: % of contacts
+		ax = fig.add_subplot(111)
+
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_l2u_outside_profile_avg[0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_l2u_outside_profile_avg[0,:] - lipids_ff_contacts_l2u_outside_profile_std[0,:], lipids_ff_contacts_l2u_outside_profile_avg[0,:] + lipids_ff_contacts_l2u_outside_profile_std[0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_l2u_outside_profile_avg[1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_l2u_outside_profile_avg[1,:] - lipids_ff_contacts_l2u_outside_profile_std[1,:], lipids_ff_contacts_l2u_outside_profile_avg[1,:] + lipids_ff_contacts_l2u_outside_profile_std[1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_l2u_outside_profile_avg[2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_l2u_outside_profile_avg[2,:] - lipids_ff_contacts_l2u_outside_profile_std[2,:], lipids_ff_contacts_l2u_outside_profile_avg[2,:] + lipids_ff_contacts_l2u_outside_profile_std[2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
+		plt.plot(range(0, 2*bins_nb), lipids_ff_contacts_l2u_outside_profile_avg[3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+		plt.fill_between(range(0, 2*bins_nb), lipids_ff_contacts_l2u_outside_profile_avg[3,:] - lipids_ff_contacts_l2u_outside_profile_std[3,:], lipids_ff_contacts_l2u_outside_profile_avg[3,:] + lipids_ff_contacts_l2u_outside_profile_std[3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
+
+		#plot data: limits
+		plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
+		plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
+		plt.vlines(0, 0, 50, linestyles = 'dashdot')
+		ax.set_xlim(min(bins_labels), max(bins_labels))
+		ax.set_ylim(0, 50)
+
+		#formatting
+		fontP.set_size("small")
+		ax.legend(prop=fontP)
+		plt.xlabel('z coordinate centered on middle of bilayer [$\AA$]')
+		plt.ylabel('contacts distribution (%)')
+		
+		#save figure
+		fig.savefig(filename_png)
+		fig.savefig(filename_svg)
+		plt.close()
+
 	return
 
 #contacts distribution along local normal: by groups
-#TO DO
+
 
 ##########################################################################################
 # ALGORITHM
