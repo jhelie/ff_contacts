@@ -227,7 +227,7 @@ parser.add_argument('--db_neighbours', nargs=1, dest='dbscan_nb', default=[3], t
 
 #profile options
 parser.add_argument('--bins', nargs=1, dest='bins', default=[100], type=int, help=argparse.SUPPRESS)
-parser.add_argument('--normal', dest='normal', choices=['z','cog','svd'], default='z', help=argparse.SUPPRESS)
+parser.add_argument('--normal', dest='normal', choices=['z','cog','svd'], default='svd', help=argparse.SUPPRESS)
 parser.add_argument('--normal_d', nargs=1, dest='normal_d', default=[50], type=float, help=argparse.SUPPRESS)
 parser.add_argument('--pl_cutoff', nargs=1, dest='cutoff_pl', default=[6], type=float, help=argparse.SUPPRESS)
 parser.add_argument('--profile', dest='profile', action='store_true', help=argparse.SUPPRESS)
@@ -989,8 +989,8 @@ def data_ff_contacts():
 			lipids_ff_contacts_outside_pc_profile[l_index] = np.zeros((4, 2*bins_nb, proteins_nb))
 		#same for groups
 		if args.cluster_groups_file != "no":
-			global lipids_ff_contacts_during_nb_groups, lipids_ff_contacts_during_pc_groups
-			global lipids_ff_contacts_outside_nb_groups, lipids_ff_contacts_outside_pc_groups
+			global lipids_ff_contacts_during_nb_groups_profile, lipids_ff_contacts_during_pc_groups_profile
+			global lipids_ff_contacts_outside_nb_groups_profile, lipids_ff_contacts_outside_pc_groups_profile
 			lipids_ff_contacts_during_nb_groups_profile = {}
 			lipids_ff_contacts_during_pc_groups_profile = {}
 			lipids_ff_contacts_outside_nb_groups_profile = {}
@@ -1160,7 +1160,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 
 	#initialise array allowing to retrieve cluster size from atom indices
 	tmp_atindices_2_csize = np.zeros(proteins_max_at_number+1)
-	tmp_atindices_2_csele = np.zeros(proteins_max_at_number+1)
+	tmp_atindices_2_csele = {}
 	
 	#retrieve coordinates arrays (pre-processing saves time as MDAnalysis functions are quite slow and we need to make such calls a few times)
 	tmp_lip_coords = {l: leaflet_sele[l]["all species"].coordinates() for l in ["lower","upper"]}
@@ -1203,7 +1203,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 		else:
 			c_size = np.size(cluster)
 			tmp_atindices_2_csize[c_sele.indices()] = c_size
-			tmp_atindices_2_csele[c_sele.indices()] = c_sele
+			tmp_atindices_2_csele.update(dict.fromkeys(c_sele.indices(), c_sele))
 			protein_TM_distribution_sizes[c_size-1] += c_size
 			if args.cluster_groups_file != "no":
 				protein_TM_distribution_groups[groups_sizes_dict[c_size]] += c_size
@@ -1340,7 +1340,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 						norm_z_middle = tmp_zl + (tmp_zu - tmp_zl)/float(2)	
 	
 						#store local relative positions of leaflets
-						z_upper_avg += tmp_ul - norm_z_middle
+						z_upper_avg += tmp_zu - norm_z_middle
 						z_lower_avg += tmp_zl - norm_z_middle
 						z_lealflets += 1
 						
