@@ -2512,7 +2512,7 @@ def write_ff_ctcts_profile_during_all():
 	#upper to lower
 	#==============
 	if np.size(lipids_ff_u2l_index) > 0:
-		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_all.stat'
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		output_stat.write("\n")
@@ -2593,7 +2593,7 @@ def write_ff_ctcts_profile_during_all():
 	#lower to upper
 	#==============
 	if np.size(lipids_ff_l2u_index) > 0:
-		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_all.stat'
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		output_stat.write("\n")
@@ -2677,7 +2677,7 @@ def write_ff_ctcts_profile_outside_all():
 	#upper to lower
 	#==============
 	if np.size(lipids_ff_u2l_index)>0:
-		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_all.stat'
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		output_stat.write("\n")
@@ -2758,7 +2758,7 @@ def write_ff_ctcts_profile_outside_all():
 	#lower to upper
 	#==============
 	if np.size(lipids_ff_l2u_index)>0:
-		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_all.stat'
+		filename=os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		output_stat.write("\n")
@@ -2843,8 +2843,8 @@ def graph_ff_ctcts_profile_during_all():
 	#==============
 	if np.size(lipids_ff_u2l_index)>0:
 		#create filenames
-		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_all.svg'
-		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_all.png'
+		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_all.svg'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_all.png'
 
 		#create figure
 		fig = plt.figure(figsize=(8, 6.2))
@@ -2866,7 +2866,7 @@ def graph_ff_ctcts_profile_during_all():
 		plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
 		plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
 		plt.vlines(0, 0, 50, linestyles = 'dashdot')
-		ax.set_xlim(min(bins_labels), max(bins_labels))
+		ax.set_xlim(-args.slices_thick*bins_nb,args.slices_thick*bins_nb)
 		ax.set_ylim(0, 50)
 
 		#formatting
@@ -2884,8 +2884,8 @@ def graph_ff_ctcts_profile_during_all():
 	#==============
 	if np.size(lipids_ff_l2u_index)>0:
 		#create filenames
-		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_all.svg'
-		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_all.png'
+		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_all.svg'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_all.png'
 
 		#create figure
 		fig = plt.figure(figsize=(8, 6.2))
@@ -2907,7 +2907,7 @@ def graph_ff_ctcts_profile_during_all():
 		plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
 		plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
 		plt.vlines(0, 0, 50, linestyles = 'dashdot')
-		ax.set_xlim(min(bins_labels), max(bins_labels))
+		ax.set_xlim(-args.slices_thick*bins_nb,args.slices_thick*bins_nb)
 		ax.set_ylim(0, 50)
 
 		#formatting
@@ -2928,8 +2928,8 @@ def graph_ff_ctcts_profile_outside_all():
 	#==============
 	if np.size(lipids_ff_u2l_index)>0:
 		#create filenames
-		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_all.svg'
-		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_all.png'
+		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_all.svg'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_all.png'
 
 		#create figure
 		fig = plt.figure(figsize=(8, 6.2))
@@ -2951,7 +2951,7 @@ def graph_ff_ctcts_profile_outside_all():
 		plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
 		plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
 		plt.vlines(0, 0, 50, linestyles = 'dashdot')
-		ax.set_xlim(min(bins_labels), max(bins_labels))
+		ax.set_xlim(-args.slices_thick*bins_nb,args.slices_thick*bins_nb)
 		ax.set_ylim(0, 50)
 
 		#formatting
@@ -2969,8 +2969,8 @@ def graph_ff_ctcts_profile_outside_all():
 	#==============
 	if np.size(lipids_ff_l2u_index)>0:
 		#create filenames
-		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_all.svg'
-		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_all.png'
+		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_all.svg'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_all.png'
 
 		#create figure
 		fig = plt.figure(figsize=(8, 6.2))
@@ -2992,7 +2992,7 @@ def graph_ff_ctcts_profile_outside_all():
 		plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
 		plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
 		plt.vlines(0, 0, 50, linestyles = 'dashdot')
-		ax.set_xlim(min(bins_labels), max(bins_labels))
+		ax.set_xlim(-args.slices_thick*bins_nb,args.slices_thick*bins_nb)
 		ax.set_ylim(0, 50)
 
 		#formatting
@@ -3016,7 +3016,7 @@ def write_ff_ctcts_profile_during_groups():
 	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
-			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.stat'
+			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.stat'
 			output_stat = open(filename, 'w')	
 			output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 			output_stat.write("\n")
@@ -3100,7 +3100,7 @@ def write_ff_ctcts_profile_during_groups():
 	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
-			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.stat'
+			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.stat'
 			output_stat = open(filename, 'w')	
 			output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 			output_stat.write("\n")
@@ -3187,7 +3187,7 @@ def write_ff_ctcts_profile_outside_groups():
 	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
-			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.stat'
+			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.stat'
 			output_stat = open(filename, 'w')	
 			output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 			output_stat.write("\n")
@@ -3271,7 +3271,7 @@ def write_ff_ctcts_profile_outside_groups():
 	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
-			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.stat'
+			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.stat'
 			output_stat = open(filename, 'w')	
 			output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 			output_stat.write("\n")
@@ -3358,8 +3358,8 @@ def graph_ff_ctcts_profile_during_groups():
 	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
-			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
-			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
+			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
+			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
 			fig = plt.figure(figsize=(8, 6.2))
@@ -3380,7 +3380,7 @@ def graph_ff_ctcts_profile_during_groups():
 			plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
 			plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
 			plt.vlines(0, 0, 50, linestyles = 'dashdot')
-			ax.set_xlim(min(bins_labels), max(bins_labels))
+			ax.set_xlim(-args.slices_thick*bins_nb,args.slices_thick*bins_nb)
 			ax.set_ylim(0, 50)
 	
 			#formatting
@@ -3399,8 +3399,8 @@ def graph_ff_ctcts_profile_during_groups():
 	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
-			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
-			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
+			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
+			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
 			fig = plt.figure(figsize=(8, 6.2))
@@ -3421,7 +3421,7 @@ def graph_ff_ctcts_profile_during_groups():
 			plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
 			plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
 			plt.vlines(0, 0, 50, linestyles = 'dashdot')
-			ax.set_xlim(min(bins_labels), max(bins_labels))
+			ax.set_xlim(-args.slices_thick*bins_nb,args.slices_thick*bins_nb)
 			ax.set_ylim(0, 50)
 	
 			#formatting
@@ -3443,8 +3443,8 @@ def graph_ff_ctcts_profile_outside_groups():
 	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
-			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
-			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
+			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
+			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
 			fig = plt.figure(figsize=(8, 6.2))
@@ -3465,7 +3465,7 @@ def graph_ff_ctcts_profile_outside_groups():
 			plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
 			plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
 			plt.vlines(0, 0, 50, linestyles = 'dashdot')
-			ax.set_xlim(min(bins_labels), max(bins_labels))
+			ax.set_xlim(-args.slices_thick*bins_nb,args.slices_thick*bins_nb)
 			ax.set_ylim(0, 50)
 	
 			#formatting
@@ -3484,8 +3484,8 @@ def graph_ff_ctcts_profile_outside_groups():
 	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
-			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
-			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
+			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
+			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
 			fig = plt.figure(figsize=(8, 6.2))
@@ -3506,7 +3506,7 @@ def graph_ff_ctcts_profile_outside_groups():
 			plt.vlines(z_lower_avg, 0, 50, linestyles = 'dashed')
 			plt.vlines(z_upper_avg, 0, 50, linestyles = 'dashed')
 			plt.vlines(0, 0, 50, linestyles = 'dashdot')
-			ax.set_xlim(min(bins_labels), max(bins_labels))
+			ax.set_xlim(-args.slices_thick*bins_nb,args.slices_thick*bins_nb)
 			ax.set_ylim(0, 50)
 	
 			#formatting
