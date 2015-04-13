@@ -2511,7 +2511,7 @@ def write_ff_ctcts_profile_during_all():
 	
 	#upper to lower
 	#==============
-	if np.size(ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2592,7 +2592,7 @@ def write_ff_ctcts_profile_during_all():
 
 	#lower to upper
 	#==============
-	if np.size(ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2676,7 +2676,7 @@ def write_ff_ctcts_profile_outside_all():
 	
 	#upper to lower
 	#==============
-	if np.size(ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index)>0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2757,7 +2757,7 @@ def write_ff_ctcts_profile_outside_all():
 
 	#lower to upper
 	#==============
-	if np.size(ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index)>0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_all.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2841,7 +2841,7 @@ def graph_ff_ctcts_profile_during_all():
 
 	#upper to lower
 	#==============
-	if np.size(ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_all.png'
@@ -2882,7 +2882,7 @@ def graph_ff_ctcts_profile_during_all():
 	
 	#lower to upper
 	#==============
-	if np.size(ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_all.png'
@@ -2926,7 +2926,7 @@ def graph_ff_ctcts_profile_outside_all():
 
 	#upper to lower
 	#==============
-	if np.size(ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_all.png'
@@ -2967,7 +2967,7 @@ def graph_ff_ctcts_profile_outside_all():
 	
 	#lower to upper
 	#==============
-	if np.size(ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_all.png'
@@ -3013,7 +3013,7 @@ def write_ff_ctcts_profile_during_groups():
 	
 	#upper to lower
 	#==============
-	if np.size(ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
 			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.stat'
@@ -3097,7 +3097,7 @@ def write_ff_ctcts_profile_during_groups():
 
 	#lower to upper
 	#==============
-	if np.size(ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
 			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.stat'
@@ -3184,7 +3184,7 @@ def write_ff_ctcts_profile_outside_groups():
 	
 	#upper to lower
 	#==============
-	if np.size(ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
 			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.stat'
@@ -3268,7 +3268,7 @@ def write_ff_ctcts_profile_outside_groups():
 
 	#lower to upper
 	#==============
-	if np.size(ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create file
 			filename = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.stat'
@@ -3355,7 +3355,7 @@ def graph_ff_ctcts_profile_during_groups():
 
 	#upper to lower
 	#==============
-	if np.size(ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
@@ -3396,7 +3396,7 @@ def graph_ff_ctcts_profile_during_groups():
 		
 	#lower to upper
 	#==============
-	if np.size(ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
@@ -3440,7 +3440,7 @@ def graph_ff_ctcts_profile_outside_groups():
 
 	#upper to lower
 	#==============
-	if np.size(ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
@@ -3481,7 +3481,7 @@ def graph_ff_ctcts_profile_outside_groups():
 		
 	#lower to upper
 	#==============
-	if np.size(ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index)>0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
