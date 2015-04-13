@@ -1237,7 +1237,7 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 			tmp_size = tmp_atindices_2_csize[tmp_ctct_at_number]
 			tmp_nbct = around_lip_prot_TM.numberOfAtoms()
 			if args.cluster_groups_file != "no":
-				tmp_group = groups_sizes_dict[c_size]
+				tmp_group = groups_sizes_dict[tmp_size]
 						
 			#store contacts if cluster TM
 			if tmp_size > 0 and tmp_size < 99999:
