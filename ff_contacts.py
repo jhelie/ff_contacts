@@ -190,11 +190,11 @@ Protein clusters identification and contacts
 
  Contacts profile options
 -----------------------------------------------------
---bins 		100 	: nb of bins along the local normal
+--profile 		: calculate local bilayer normal and store position of each contacts
 --normal	svd	: local normal to bilayer ('z', 'cog' or 'svd'), see note 5
 --normal_d	50	: distance of points to take into account for local normal, see note 5
 --pl_cutoff 	6	: cutoff distance for protein-lipid contact (Angstrom)
---profile 		: calculate local bilayer normal and store position of each contacts
+--slices_dist	40 	: max distance from center of bilayer (Angstrom)
 --slices_thick	0.5 	: thickness of the profile slices (Angstrom)
  
 Other options
@@ -226,11 +226,11 @@ parser.add_argument('--db_radius', nargs=1, dest='dbscan_dist', default=[20], ty
 parser.add_argument('--db_neighbours', nargs=1, dest='dbscan_nb', default=[3], type=int, help=argparse.SUPPRESS)
 
 #profile options
-parser.add_argument('--bins', nargs=1, dest='bins', default=[100], type=int, help=argparse.SUPPRESS)
+parser.add_argument('--profile', dest='profile', action='store_true', help=argparse.SUPPRESS)
 parser.add_argument('--normal', dest='normal', choices=['z','cog','svd'], default='svd', help=argparse.SUPPRESS)
 parser.add_argument('--normal_d', nargs=1, dest='normal_d', default=[50], type=float, help=argparse.SUPPRESS)
 parser.add_argument('--pl_cutoff', nargs=1, dest='cutoff_pl', default=[6], type=float, help=argparse.SUPPRESS)
-parser.add_argument('--profile', dest='profile', action='store_true', help=argparse.SUPPRESS)
+parser.add_argument('--slices_dist', nargs=1, dest='slices_dist', default=[40], type=float, help=argparse.SUPPRESS)
 parser.add_argument('--slices_thick', nargs=1, dest='slices_thick', default=[0.5], type=float, help=argparse.SUPPRESS)
 
 #other options
@@ -262,9 +262,9 @@ args.nx_cutoff = args.nx_cutoff[0]
 args.dbscan_dist = args.dbscan_dist[0]
 args.dbscan_nb = args.dbscan_nb[0]
 #profile options
-args.bins = args.bins[0]
 args.normal_d = args.normal_d[0]
 args.cutoff_pl = args.cutoff_pl[0]
+args.slices_dist = args.slices_dist[0]
 args.slices_thick = args.slices_thick[0]
 
 #process options
@@ -453,7 +453,7 @@ def set_lipids_beads():
 	return
 def load_MDA_universe():
 	
-	global U
+	global U, U_gro
 	global all_atoms
 	global nb_atoms
 	global nb_frames_xtc
@@ -478,6 +478,7 @@ def load_MDA_universe():
 		nb_frames_to_process = 1
 	else:
 		print "\nLoading trajectory..."
+		U_gro = Universe(args.grofilename)
 		U = Universe(args.grofilename, args.xtcfilename)
 		U_timestep = U.trajectory.dt
 		all_atoms = U.selectAtoms("all")
@@ -779,9 +780,9 @@ def identify_leaflets():
 			for g in range(2, np.shape(L.groups())[0]):
 				other_lipids += L.group(g).numberOfResidues()
 			print " -found " + str(np.shape(L.groups())[0]) + " groups: " + str(leaflet_sele["upper"]["all species"].numberOfResidues()) + "(upper), " + str(leaflet_sele["lower"]["all species"].numberOfResidues()) + "(lower) and " + str(other_lipids) + " (others) lipids respectively"
-	#use cog:
+	#use cog and z coordinates in the GRO file supplied:
 	else:
-		leaflet_sele["both"]["all species"] = U.selectAtoms(leaflet_sele_string)
+		leaflet_sele["both"]["all species"] = U_gro.selectAtoms(leaflet_sele_string)
 		tmp_lipids_avg_z = leaflet_sele["both"]["all species"].centerOfGeometry()[2]
 		leaflet_sele["upper"]["all species"] = leaflet_sele["both"]["all species"].selectAtoms("prop z > " + str(tmp_lipids_avg_z))
 		leaflet_sele["lower"]["all species"] = leaflet_sele["both"]["all species"].selectAtoms("prop z < " + str(tmp_lipids_avg_z))
@@ -977,7 +978,7 @@ def data_ff_contacts():
 
 		#determine number of bins
 		global bins_nb, bins_nb_max, bins_labels, bins_range
-		bins_nb = int(np.floor(40/float(args.slices_thick))) 			#actually it's twice that as (-bins_nb,bins_nb) has to be filled
+		bins_nb = int(np.floor(args.slices_dist/float(args.slices_thick))) 			#actually it's twice that as (-bins_nb,bins_nb) has to be filled
 		bins_nb_max = bins_nb
 		bins_labels = [str((n+0.5)*args.slices_thick) for n in range(-bins_nb,bins_nb)]
 		bins_range = [(n+0.5)*args.slices_thick for n in range(-bins_nb,bins_nb)]
