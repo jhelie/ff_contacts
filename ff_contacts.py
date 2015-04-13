@@ -391,6 +391,12 @@ else:
 		os.mkdir(args.output_folder + '/by_group')
 	if args.profile:
 		os.mkdir(args.output_folder + '/TM_profile')
+		os.mkdir(args.output_folder + '/TM_profile/xvg')
+		os.mkdir(args.output_folder + '/TM_profile/png')
+		if args.cluster_groups_file != "no":
+			os.mkdir(args.output_folder + '/TM_profile/groups')
+			os.mkdir(args.output_folder + '/TM_profile/groups/xvg')
+			os.mkdir(args.output_folder + '/TM_profile/groups/png')
 	
 	#create log
 	#----------
@@ -2526,7 +2532,7 @@ def write_ff_ctcts_profile_during_all():
 	#==============
 	if np.size(lipids_ff_u2l_index) > 0:
 		#create file
-		filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_all.xvg'
+		filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/xvg/ff_ctcts_profile_u2l_during_all.xvg'
 		output_xvg = open(filename, 'w')	
 
 		#general info as comment
@@ -2582,7 +2588,7 @@ def write_ff_ctcts_profile_during_all():
 	#==============
 	if np.size(lipids_ff_l2u_index) > 0:
 		#create file
-		filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_all.xvg'
+		filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/xvg/ff_ctcts_profile_l2u_during_all.xvg'
 		output_xvg = open(filename, 'w')	
 
 		#general info as comment
@@ -2641,7 +2647,7 @@ def write_ff_ctcts_profile_outside_all():
 	#==============
 	if np.size(lipids_ff_u2l_index) > 0:
 		#create file
-		filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_all.xvg'
+		filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/xvg/ff_ctcts_profile_u2l_outside_all.xvg'
 		output_xvg = open(filename, 'w')	
 	
 		#general info as comment
@@ -2697,7 +2703,7 @@ def write_ff_ctcts_profile_outside_all():
 	#==============
 	if np.size(lipids_ff_l2u_index) > 0:
 		#create file
-		filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_all.xvg'
+		filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/xvg/ff_ctcts_profile_l2u_outside_all.xvg'
 		output_xvg = open(filename, 'w')	
 	
 		#general info as comment
@@ -2757,7 +2763,7 @@ def graph_ff_ctcts_profile_during_all():
 	if np.size(lipids_ff_u2l_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_all.svg'
-		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_all.png'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/png/ff_ctcts_profile_u2l_during_all.png'
 
 		#create figure
 		fig = plt.figure(figsize=(8, 6.2))
@@ -2801,7 +2807,7 @@ def graph_ff_ctcts_profile_during_all():
 	if np.size(lipids_ff_l2u_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_all.svg'
-		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_all.png'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/png/ff_ctcts_profile_l2u_during_all.png'
 
 		#create figure
 		fig = plt.figure(figsize=(8, 6.2))
@@ -2848,7 +2854,7 @@ def graph_ff_ctcts_profile_outside_all():
 	if np.size(lipids_ff_u2l_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_all.svg'
-		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_all.png'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/png/ff_ctcts_profile_u2l_outside_all.png'
 
 		#create figure
 		fig = plt.figure(figsize=(8, 6.2))
@@ -2892,7 +2898,7 @@ def graph_ff_ctcts_profile_outside_all():
 	if np.size(lipids_ff_l2u_index)>0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_all.svg'
-		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_all.png'
+		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/png/ff_ctcts_profile_l2u_outside_all.png'
 
 		#create figure
 		fig = plt.figure(figsize=(8, 6.2))
@@ -2942,7 +2948,7 @@ def write_ff_ctcts_profile_during_groups():
 		for g_index in range(0,group_gmax):
 
 			#create file
-			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.xvg'
+			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/xvg/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.xvg'
 			output_xvg = open(filename, 'w')	
 			output_xvg.write("#[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		
@@ -3000,7 +3006,7 @@ def write_ff_ctcts_profile_during_groups():
 		for g_index in range(0,group_gmax):
 
 			#create file
-			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.xvg'
+			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/xvg/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.xvg'
 			output_xvg = open(filename, 'w')	
 			output_xvg.write("#[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		
@@ -3061,7 +3067,7 @@ def write_ff_ctcts_profile_outside_groups():
 		for g_index in range(0,group_gmax):
 
 			#create file
-			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.xvg'
+			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/xvg/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.xvg'
 			output_xvg = open(filename, 'w')	
 			output_xvg.write("#[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		
@@ -3119,7 +3125,7 @@ def write_ff_ctcts_profile_outside_groups():
 		for g_index in range(0,group_gmax):
 
 			#create file
-			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.xvg'
+			filename = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/xvg/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.xvg'
 			output_xvg = open(filename, 'w')	
 			output_xvg.write("#[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
 		
@@ -3180,7 +3186,7 @@ def graph_ff_ctcts_profile_during_groups():
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
-			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
+			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/png/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
 			fig = plt.figure(figsize=(8, 6.2))
@@ -3188,13 +3194,13 @@ def graph_ff_ctcts_profile_during_groups():
 						
 			#plot data: % of contacts
 			ax = fig.add_subplot(111)
-			plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+			plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][0,:], color = residues_types_colours["basic"], linewidth = 2.0, label = 'basic')
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][0,:] - lipids_ff_contacts_u2l_during_profile_groups_std[g_index][0,:], lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][0,:] + lipids_ff_contacts_u2l_during_profile_groups_std[g_index][0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+			plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][1,:], color = residues_types_colours["polar"], linewidth = 2.0, label = 'polar')
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][1,:] - lipids_ff_contacts_u2l_during_profile_groups_std[g_index][1,:], lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][1,:] + lipids_ff_contacts_u2l_during_profile_groups_std[g_index][1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+			plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][2,:], color = residues_types_colours["hydrophobic"], linewidth = 2.0, label = 'hydrophobic')
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][2,:] - lipids_ff_contacts_u2l_during_profile_groups_std[g_index][2,:], lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][2,:] + lipids_ff_contacts_u2l_during_profile_groups_std[g_index][2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+			plt.plot(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][3,:], color = residues_types_colours["bb_only"], linewidth = 2.0, label = 'bb_only')
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][3,:] - lipids_ff_contacts_u2l_during_profile_groups_std[g_index][3,:], lipids_ff_contacts_u2l_during_profile_groups_avg[g_index][3,:] + lipids_ff_contacts_u2l_during_profile_groups_std[g_index][3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 	
 			#plot data: limits
@@ -3225,7 +3231,7 @@ def graph_ff_ctcts_profile_during_groups():
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
-			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
+			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/png/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
 			fig = plt.figure(figsize=(8, 6.2))
@@ -3233,13 +3239,13 @@ def graph_ff_ctcts_profile_during_groups():
 			
 			#plot data: % of contacts
 			ax = fig.add_subplot(111)
-			plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+			plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][0,:], color = residues_types_colours["basic"], linewidth = 2.0, label = 'basic')
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][0,:] - lipids_ff_contacts_l2u_during_profile_groups_std[g_index][0,:], lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][0,:] + lipids_ff_contacts_l2u_during_profile_groups_std[g_index][0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+			plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][1,:], color = residues_types_colours["polar"], linewidth = 2.0, label = 'polar')
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][1,:] - lipids_ff_contacts_l2u_during_profile_groups_std[g_index][1,:], lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][1,:] + lipids_ff_contacts_l2u_during_profile_groups_std[g_index][1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+			plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][2,:], color = residues_types_colours["hydrophobic"], linewidth = 2.0, label = 'hydrophobic')
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][2,:] - lipids_ff_contacts_l2u_during_profile_groups_std[g_index][2,:], lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][2,:] + lipids_ff_contacts_l2u_during_profile_groups_std[g_index][2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+			plt.plot(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][3,:], color = residues_types_colours["bb_only"], linewidth = 2.0, label = 'bb_only')
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][3,:] - lipids_ff_contacts_l2u_during_profile_groups_std[g_index][3,:], lipids_ff_contacts_l2u_during_profile_groups_avg[g_index][3,:] + lipids_ff_contacts_l2u_during_profile_groups_std[g_index][3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 	
 			#plot data: limits
@@ -3273,7 +3279,7 @@ def graph_ff_ctcts_profile_outside_groups():
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
-			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
+			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/png/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
 			fig = plt.figure(figsize=(8, 6.2))
@@ -3281,13 +3287,13 @@ def graph_ff_ctcts_profile_outside_groups():
 			
 			#plot data: % of contacts
 			ax = fig.add_subplot(111)
-			plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+			plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][0,:], color = residues_types_colours["basic"], linewidth = 2.0, label = 'basic')
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][0,:] - lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][0,:], lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][0,:] + lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+			plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][1,:], color = residues_types_colours["polar"], linewidth = 2.0, label = 'polar')
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][1,:] - lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][1,:], lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][1,:] + lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+			plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][2,:], color = residues_types_colours["hydrophobic"], linewidth = 2.0, label = 'hydrophobic')
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][2,:] - lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][2,:], lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][2,:] + lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+			plt.plot(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][3,:], color = residues_types_colours["bb_only"], linewidth = 2.0, label = 'bb_only')
 			plt.fill_between(bins_range, lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][3,:] - lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][3,:], lipids_ff_contacts_u2l_outside_profile_groups_avg[g_index][3,:] + lipids_ff_contacts_u2l_outside_profile_groups_std[g_index][3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 	
 			#plot data: limits
@@ -3318,7 +3324,7 @@ def graph_ff_ctcts_profile_outside_groups():
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
-			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
+			filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/png/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
 	
 			#create figure
 			fig = plt.figure(figsize=(8, 6.2))
@@ -3326,13 +3332,13 @@ def graph_ff_ctcts_profile_outside_groups():
 			
 			#plot data: % of contacts
 			ax = fig.add_subplot(111)
-			plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][0,:], color = residues_types_colours["basic"], linewidth = 3.0, label = 'basic')
+			plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][0,:], color = residues_types_colours["basic"], linewidth = 2.0, label = 'basic')
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][0,:] - lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][0,:], lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][0,:] + lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][0,:], color = residues_types_colours["basic"], edgecolor = residues_types_colours["basic"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][1,:], color = residues_types_colours["polar"], linewidth = 3.0, label = 'polar')
+			plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][1,:], color = residues_types_colours["polar"], linewidth = 2.0, label = 'polar')
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][1,:] - lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][1,:], lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][1,:] + lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][1,:], color = residues_types_colours["polar"], edgecolor = residues_types_colours["polar"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][2,:], color = residues_types_colours["hydrophobic"], linewidth = 3.0, label = 'hydrophobic')
+			plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][2,:], color = residues_types_colours["hydrophobic"], linewidth = 2.0, label = 'hydrophobic')
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][2,:] - lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][2,:], lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][2,:] + lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][2,:], color = residues_types_colours["hydrophobic"], edgecolor = residues_types_colours["hydrophobic"], linewidth = 0, alpha = 0.2)
-			plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][3,:], color = residues_types_colours["bb_only"], linewidth = 3.0, label = 'bb_only')
+			plt.plot(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][3,:], color = residues_types_colours["bb_only"], linewidth = 2.0, label = 'bb_only')
 			plt.fill_between(bins_range, lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][3,:] - lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][3,:], lipids_ff_contacts_l2u_outside_profile_groups_avg[g_index][3,:] + lipids_ff_contacts_l2u_outside_profile_groups_std[g_index][3,:], color = residues_types_colours["bb_only"], edgecolor = residues_types_colours["bb_only"], linewidth = 0, alpha = 0.2)
 	
 			#plot data: limits
