@@ -905,7 +905,7 @@ def data_ff_contacts():
 	residues_types_colours["acidic"] = "m"
 	residues_types_colours["polar"] = "g"
 	residues_types_colours["hydrophobic"] = "r"
-	residues_types_colours["bb_only"] = "k"
+	residues_types_colours["bb_only"] = "y"
 
 	#create selection string for each type: residues
 	residues_types_sele_string = {}
