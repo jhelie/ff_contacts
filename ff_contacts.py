@@ -1236,12 +1236,15 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 			tmp_ctct_at_number = around_lip_prot_TM.atoms[0].number
 			tmp_size = tmp_atindices_2_csize[tmp_ctct_at_number]
 			tmp_nbct = around_lip_prot_TM.numberOfAtoms()
-			if args.cluster_groups_file != "no":
-				tmp_group = groups_sizes_dict[tmp_size]
 						
 			#store contacts if cluster TM
 			if tmp_size > 0 and tmp_size < 99999:
 				
+				#get size group 
+				#--------------
+				if args.cluster_groups_file != "no":
+					tmp_group = groups_sizes_dict[tmp_size]
+
 				#store overal number of each contact types
 				#-----------------------------------------
 				tmp_ctct_basic = around_lip_prot_TM.selectAtoms(residues_types_sele_string['basic']).numberOfAtoms()
@@ -1291,6 +1294,9 @@ def identify_ff_contacts(box_dim, f_time, f_nb):
 						tmp_lip_coords_lw_within = tmp_lip_coords_lw[tmp_lip_coords_lw[:,0]**2 + tmp_lip_coords_lw[:,1]**2 + tmp_lip_coords_lw[:,2]**2 < args.normal_d**2]
 						if np.shape(tmp_lip_coords_up_within)[0] == 0:
 							print "\nWarning: no neighbouring particles found in the upper leaflet for current cluster (size " + str(c_size) + "). Check the --normal_d option.\n"						
+							#debug
+							print "time: ", f_time
+							print tmp_ctct_at_number, tmp_atindices_2_csele[tmp_ctct_at_number].indices()
 							continue
 						else:
 							cog_up = np.average(tmp_lip_coords_up_within, axis = 0)
