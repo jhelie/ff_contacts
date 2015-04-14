@@ -368,6 +368,9 @@ if args.normal != 'z' and args.normal_d <= 0:
 	sys.exit(1)
 
 if args.xtcfilename == "no":
+	if args.use_gro:
+		print "Error: you can only use the --use_gro file if you specify an xtc file."
+		sys.exit(1)
 	if '-t' in sys.argv:
 		print "Error: -t option specified but no xtc file specified."
 		sys.exit(1)
@@ -460,7 +463,7 @@ def set_lipids_beads():
 	return
 def load_MDA_universe():
 	
-	global U, U_gro
+	global U
 	global all_atoms
 	global nb_atoms
 	global nb_frames_xtc
@@ -485,7 +488,9 @@ def load_MDA_universe():
 		nb_frames_to_process = 1
 	else:
 		print "\nLoading trajectory..."
-		U_gro = Universe(args.grofilename)
+		if args.use_gro:
+			global U_gro
+			U_gro = Universe(args.grofilename)
 		U = Universe(args.grofilename, args.xtcfilename)
 		U_timestep = U.trajectory.dt
 		all_atoms = U.selectAtoms("all")
@@ -765,10 +770,11 @@ def identify_leaflets():
 	if args.cutoff_leaflet != 'large':
 		if args.cutoff_leaflet == 'optimise':
 			print " -optimising cutoff..."
-			cutoff_value = MDAnalysis.analysis.leaflet.optimize_cutoff(U, leaflet_sele_string)
 			if args.use_gro:
-				L = MDAnalysis.analysis.leaflet.LeafletFinder(U_gro, leaflet_sele_string, cutoff_value[0])			
+				cutoff_value = MDAnalysis.analysis.leaflet.optimize_cutoff(U_gro, leaflet_sele_string)
+				L = MDAnalysis.analysis.leaflet.LeafletFinder(U_gro, leaflet_sele_string, cutoff_value[0])
 			else:
+				cutoff_value = MDAnalysis.analysis.leaflet.optimize_cutoff(U, leaflet_sele_string)
 				L = MDAnalysis.analysis.leaflet.LeafletFinder(U, leaflet_sele_string, cutoff_value[0])			
 		else:
 			if args.use_gro:
@@ -794,25 +800,27 @@ def identify_leaflets():
 			else:
 				leaflet_sele["upper"]["all species"] = L.group(1)
 				leaflet_sele["lower"]["all species"] = L.group(0)
-		if args.use_gro:		
+		
+		if args.use_gro:
 			tmp_up_indices = tmp_up.indices()
 			tmp_lw_indices = tmp_lw.indices()
 			tmp_up_nb_atoms = len(tmp_up_indices)
 			tmp_lw_nb_atoms = len(tmp_lw_indices)
-			leaflet_sele["upper"]["all species"] = U.selectAtoms("bynum " + str(tmp_up_indices[0]))
-			leaflet_sele["lower"]["all species"] = U.selectAtoms("bynum " + str(tmp_lw_indices[0]))
+			leaflet_sele["upper"]["all species"] = U.selectAtoms("bynum " + str(tmp_up_indices[0] + 1))
+			leaflet_sele["lower"]["all species"] = U.selectAtoms("bynum " + str(tmp_lw_indices[0] + 1))
 			for index in range(1,tmp_up_nb_atoms):
-				leaflet_sele["upper"]["all species"] += U.selectAtoms("bynum " + str(tmp_up_indices[index]))
+				leaflet_sele["upper"]["all species"] += U.selectAtoms("bynum " + str(tmp_up_indices[index] + 1))
 				progress = '\r -identifying upper leaflet from gro file... ' + str(round(index/float(tmp_up_nb_atoms)*100,1)) + '%   '
 				sys.stdout.flush()
 				sys.stdout.write(progress)
 			print ''
 			for index in range(1,tmp_lw_nb_atoms):
-				leaflet_sele["lower"]["all species"] += U.selectAtoms("bynum " + str(tmp_lw_indices[index]))
+				leaflet_sele["lower"]["all species"] += U.selectAtoms("bynum " + str(tmp_lw_indices[index] + 1))
 				progress = '\r -identifying lower leaflet from gro file... ' + str(round(index/float(tmp_lw_nb_atoms)*100,1)) + '%   '
 				sys.stdout.flush()
 				sys.stdout.write(progress)
 			print ''
+		
 		leaflet_sele["both"]["all species"] = leaflet_sele["lower"]["all species"] + leaflet_sele["upper"]["all species"]
 		if np.shape(L.groups())[0] == 2:
 			print " -found 2 leaflets: ", leaflet_sele["upper"]["all species"].numberOfResidues(), '(upper) and ', leaflet_sele["lower"]["all species"].numberOfResidues(), '(lower) lipids'
@@ -832,16 +840,16 @@ def identify_leaflets():
 			tmp_lw_indices = tmp_lw.indices()
 			tmp_up_nb_atoms = len(tmp_up_indices)
 			tmp_lw_nb_atoms = len(tmp_lw_indices)
-			leaflet_sele["upper"]["all species"] = U.selectAtoms("bynum " + str(tmp_up_indices[0]))
-			leaflet_sele["lower"]["all species"] = U.selectAtoms("bynum " + str(tmp_lw_indices[0]))
+			leaflet_sele["upper"]["all species"] = U.selectAtoms("bynum " + str(tmp_up_indices[0] + 1))
+			leaflet_sele["lower"]["all species"] = U.selectAtoms("bynum " + str(tmp_lw_indices[0] + 1))
 			for index in range(1,tmp_up_nb_atoms):
-				leaflet_sele["upper"]["all species"] += U.selectAtoms("bynum " + str(tmp_up_indices[index]))
+				leaflet_sele["upper"]["all species"] += U.selectAtoms("bynum " + str(tmp_up_indices[index] + 1))
 				progress = '\r -identifying upper leaflet from gro file... ' + str(round(index/float(tmp_up_nb_atoms)*100,1)) + '%   '
 				sys.stdout.flush()
 				sys.stdout.write(progress)
 			print ''
 			for index in range(1,tmp_lw_nb_atoms):
-				leaflet_sele["lower"]["all species"] += U.selectAtoms("bynum " + str(tmp_lw_indices[index]))
+				leaflet_sele["lower"]["all species"] += U.selectAtoms("bynum " + str(tmp_lw_indices[index] + 1))
 				progress = '\r -identifying lower leaflet from gro file... ' + str(round(index/float(tmp_lw_nb_atoms)*100,1)) + '%   '
 				sys.stdout.flush()
 				sys.stdout.write(progress)
@@ -853,7 +861,7 @@ def identify_leaflets():
 			leaflet_sele["upper"]["all species"] = leaflet_sele["both"]["all species"].selectAtoms("prop z > " + str(tmp_lipids_avg_z))
 			leaflet_sele["lower"]["all species"] = leaflet_sele["both"]["all species"].selectAtoms("prop z < " + str(tmp_lipids_avg_z))
 		print " -found 2 leaflets: ", leaflet_sele["upper"]["all species"].numberOfResidues(), '(upper) and ', leaflet_sele["lower"]["all species"].numberOfResidues(), '(lower) lipids'
-		
+			
 	#store full selections
 	for l in ["lower","upper","both"]:
 		leaflet_sele_atoms[l]["all species"] = leaflet_sele[l]["all species"].residues.atoms
