@@ -1810,7 +1810,7 @@ def write_ff_ctcts_by_type():
 	output_stat.write("caption: average distribution of contacts over residue types (%)\n")
 	
 	#upper to lower
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		output_stat.write("\n")
 		output_stat.write("upper to lower (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
@@ -1822,7 +1822,7 @@ def write_ff_ctcts_by_type():
 		output_stat.write("\n")
 
 	#lower to upper	
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		output_stat.write("\n")
 		output_stat.write("lower to upper (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
@@ -1836,7 +1836,7 @@ def write_ff_ctcts_by_type():
 	
 	#details: u2l
 	#============
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_type/ff_ctcts_by_type_pc_u2l.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -1884,7 +1884,7 @@ def write_ff_ctcts_by_type():
 	
 	#details: l2u
 	#============
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_type/ff_ctcts_by_type_pc_l2u.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -1953,15 +1953,16 @@ def graph_ff_ctcts_by_type():
 	ax1 = fig.add_subplot(211)
 	#peptide
 	plt.bar(xticks_pos-0.375, protein_composition, width=0.25, color='#C0C0C0', label="peptide")	
-	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_type_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_type_std, ecolor='k')
-	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_type_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_type_std, ecolor='k')
+	if np.size(lipids_ff_u2l_index) > 0:
+		#outside
+		plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_type_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_type_std, ecolor='k')
+		#during
+		plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_type_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_type_std, ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Upper to Lower", size='small')
 	fontP.set_size("small")
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		ax1.legend(prop=fontP)
 
 	#plot data: lower to upper
@@ -1969,15 +1970,16 @@ def graph_ff_ctcts_by_type():
 	ax2 = fig.add_subplot(212)
 	#peptide
 	plt.bar(xticks_pos-0.375, protein_composition, width=0.25, color='#C0C0C0', label="peptide")	
-	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_type_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_type_std, ecolor='k')
-	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_type_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_type_std, ecolor='k')
+	if np.size(lipids_ff_l2u_index) > 0:
+		#outside
+		plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_type_avg, width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_type_std, ecolor='k')
+		#during
+		plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_type_avg, width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_type_std, ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Lower to Upper", size='small')
 	fontP.set_size("small")
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		ax2.legend(prop=fontP)
 
 	#legend, labels, etc
@@ -2048,7 +2050,7 @@ def write_ff_ctcts_by_size():
 	output_stat.write("caption: average distribution of contacts over cluster sizes (%)\n")
 	
 	#upper to lower
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		output_stat.write("\n")
 		output_stat.write("upper to lower (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
@@ -2071,7 +2073,7 @@ def write_ff_ctcts_by_size():
 		output_stat.write("\n")
 
 	#lower to upper	
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		output_stat.write("\n")
 		output_stat.write("lower to upper (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
@@ -2096,7 +2098,7 @@ def write_ff_ctcts_by_size():
 
 	#details: u2l
 	#============
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc_u2l.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2162,7 +2164,7 @@ def write_ff_ctcts_by_size():
 	
 	#details: l2u
 	#============
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_size/ff_ctcts_by_size_pc_l2u.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2249,15 +2251,16 @@ def graph_ff_ctcts_by_size():
 	ax1 = fig.add_subplot(211)
 	#peptide
 	plt.bar(xticks_pos-0.375, protein_TM_distribution_sizes, width=0.25, color='#C0C0C0', label="peptide")	
-	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_size_avg[:protein_max_size_sampled], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_size_std[:protein_max_size_sampled], ecolor='k')
-	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_size_avg[:protein_max_size_sampled], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_size_std[:protein_max_size_sampled], ecolor='k')
+	if np.size(lipids_ff_u2l_index) > 0:
+		#outside
+		plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_size_avg[:protein_max_size_sampled], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_size_std[:protein_max_size_sampled], ecolor='k')
+		#during
+		plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_size_avg[:protein_max_size_sampled], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_size_std[:protein_max_size_sampled], ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Upper to Lower", size='small')
 	fontP.set_size("small")
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		ax1.legend(prop=fontP)
 
 	#plot data: lower to upper
@@ -2265,15 +2268,16 @@ def graph_ff_ctcts_by_size():
 	ax2 = fig.add_subplot(212)
 	#peptide
 	plt.bar(xticks_pos-0.375, protein_TM_distribution_sizes, width=0.25, color='#C0C0C0', label="peptide")	
-	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_size_avg[:protein_max_size_sampled], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_size_std[:protein_max_size_sampled], ecolor='k')
-	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_size_avg[:protein_max_size_sampled], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_size_std[:protein_max_size_sampled], ecolor='k')
+	if np.size(lipids_ff_l2u_index) > 0:
+		#outside
+		plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_size_avg[:protein_max_size_sampled], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_size_std[:protein_max_size_sampled], ecolor='k')
+		#during
+		plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_size_avg[:protein_max_size_sampled], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_size_std[:protein_max_size_sampled], ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Lower to Upper", size='small')
 	fontP.set_size("small")
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		ax2.legend(prop=fontP)
 
 	#legend, labels, etc
@@ -2344,7 +2348,7 @@ def write_ff_ctcts_by_group():
 	output_stat.write("caption: average distribution of contacts over cluster size groups (%)\n")
 	
 	#upper to lower
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		output_stat.write("\n")
 		output_stat.write("upper to lower (" + str(np.size(lipids_ff_u2l_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
@@ -2367,7 +2371,7 @@ def write_ff_ctcts_by_group():
 		output_stat.write("\n")
 
 	#lower to upper	
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		output_stat.write("lower to upper (" + str(np.size(lipids_ff_l2u_index)) + " lipids)\n")	
 		output_stat.write("==============\n")
 		output_stat.write("\n")
@@ -2392,7 +2396,7 @@ def write_ff_ctcts_by_group():
 
 	#details: u2l
 	#============
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_group/ff_ctcts_by_group_pc_u2l.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2458,7 +2462,7 @@ def write_ff_ctcts_by_group():
 	
 	#details: l2u
 	#============
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		filename=os.getcwd() + '/' + str(args.output_folder) + '/by_group/ff_ctcts_by_group_pc_l2u.stat'
 		output_stat = open(filename, 'w')	
 		output_stat.write("[flipflopping lipids contact statistics - written by ff_contacts v" + str(version_nb) +"]\n")
@@ -2545,15 +2549,16 @@ def graph_ff_ctcts_by_group():
 	ax1 = fig.add_subplot(211)
 	#peptide
 	plt.bar(xticks_pos-0.375, protein_TM_distribution_groups[:group_gmax], width=0.25, color='#C0C0C0', label="peptide")	
-	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_size_group_avg[:group_gmax], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_size_group_std[:group_gmax], ecolor='k')
-	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_size_group_avg[:group_gmax], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_size_group_std[:group_gmax], ecolor='k')
+	if np.size(lipids_ff_u2l_index) > 0:
+		#outside
+		plt.bar(xticks_pos-0.125, lipids_ff_contacts_u2l_during_by_size_group_avg[:group_gmax], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_u2l_during_by_size_group_std[:group_gmax], ecolor='k')
+		#during
+		plt.bar(xticks_pos+0.125, lipids_ff_contacts_u2l_outside_by_size_group_avg[:group_gmax], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_u2l_outside_by_size_group_std[:group_gmax], ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Upper to Lower", size='small')
 	fontP.set_size("small")
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		ax1.legend(prop=fontP)
 
 	#plot data: lower to upper
@@ -2561,15 +2566,16 @@ def graph_ff_ctcts_by_group():
 	ax2 = fig.add_subplot(212)
 	#peptide
 	plt.bar(xticks_pos-0.375, protein_TM_distribution_groups[:group_gmax], width=0.25, color='#C0C0C0', label="peptide")	
-	#outside
-	plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_size_group_avg[:group_gmax], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_size_group_std[:group_gmax], ecolor='k')
-	#during
-	plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_size_group_avg[:group_gmax], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_size_group_std[:group_gmax], ecolor='k')
+	if np.size(lipids_ff_l2u_index) > 0:
+		#outside
+		plt.bar(xticks_pos-0.125, lipids_ff_contacts_l2u_during_by_size_group_avg[:group_gmax], width=0.25, color='#808080', label="before/after", yerr = lipids_ff_contacts_l2u_during_by_size_group_std[:group_gmax], ecolor='k')
+		#during
+		plt.bar(xticks_pos+0.125, lipids_ff_contacts_l2u_outside_by_size_group_avg[:group_gmax], width=0.25, color='w', label="during", yerr = lipids_ff_contacts_l2u_outside_by_size_group_std[:group_gmax], ecolor='k')
 	plt.xticks(xticks_pos, xticks_lab, size='x-small')
 	plt.yticks(range(int(min(plt.yticks()[0])), int(math.ceil(max(plt.yticks()[0])))+1))
 	plt.title("Lower to Upper", size='small')
 	fontP.set_size("small")
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		ax2.legend(prop=fontP)
 
 	#legend, labels, etc
@@ -2845,7 +2851,7 @@ def graph_ff_ctcts_profile_during_all():
 
 	#upper to lower
 	#==============
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_during_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/png/ff_ctcts_profile_u2l_during_all.png'
@@ -2889,7 +2895,7 @@ def graph_ff_ctcts_profile_during_all():
 	
 	#lower to upper
 	#==============
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_during_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/png/ff_ctcts_profile_l2u_during_all.png'
@@ -2936,7 +2942,7 @@ def graph_ff_ctcts_profile_outside_all():
 
 	#upper to lower
 	#==============
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_u2l_outside_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/png/ff_ctcts_profile_u2l_outside_all.png'
@@ -2980,7 +2986,7 @@ def graph_ff_ctcts_profile_outside_all():
 	
 	#lower to upper
 	#==============
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		#create filenames
 		filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/ff_ctcts_profile_l2u_outside_all.svg'
 		filename_png = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/png/ff_ctcts_profile_l2u_outside_all.png'
@@ -3029,7 +3035,7 @@ def write_ff_ctcts_profile_during_groups():
 	
 	#upper to lower
 	#==============
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		for g_index in range(0,group_gmax):
 
 			#create file
@@ -3087,7 +3093,7 @@ def write_ff_ctcts_profile_during_groups():
 
 	#lower to upper
 	#==============
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		for g_index in range(0,group_gmax):
 
 			#create file
@@ -3148,7 +3154,7 @@ def write_ff_ctcts_profile_outside_groups():
 	
 	#upper to lower
 	#==============
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		for g_index in range(0,group_gmax):
 
 			#create file
@@ -3206,7 +3212,7 @@ def write_ff_ctcts_profile_outside_groups():
 
 	#lower to upper
 	#==============
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		for g_index in range(0,group_gmax):
 
 			#create file
@@ -3267,7 +3273,7 @@ def graph_ff_ctcts_profile_during_groups():
 
 	#upper to lower
 	#==============
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/ff_ctcts_profile_u2l_during_' + str(groups_labels[g_index]) + '.svg'
@@ -3312,7 +3318,7 @@ def graph_ff_ctcts_profile_during_groups():
 		
 	#lower to upper
 	#==============
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/ff_ctcts_profile_l2u_during_' + str(groups_labels[g_index]) + '.svg'
@@ -3360,7 +3366,7 @@ def graph_ff_ctcts_profile_outside_groups():
 
 	#upper to lower
 	#==============
-	if np.size(lipids_ff_u2l_index)>0:
+	if np.size(lipids_ff_u2l_index) > 0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/ff_ctcts_profile_u2l_outside_' + str(groups_labels[g_index]) + '.svg'
@@ -3405,7 +3411,7 @@ def graph_ff_ctcts_profile_outside_groups():
 		
 	#lower to upper
 	#==============
-	if np.size(lipids_ff_l2u_index)>0:
+	if np.size(lipids_ff_l2u_index) > 0:
 		for g_index in range(0,group_gmax):
 			#create filenames
 			filename_svg = os.getcwd() + '/' + str(args.output_folder) + '/TM_profile/groups/ff_ctcts_profile_l2u_outside_' + str(groups_labels[g_index]) + '.svg'
