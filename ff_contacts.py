@@ -1724,12 +1724,12 @@ def calc_stats_ctcts():
 		lipids_ff_contacts_l2u_outside_by_size_group_std = np.std(lipids_ff_contacts_l2u_outside_tot_pc_by_size_group.values(), axis = 0)
 
 		#new
-		global lipids_ff_contacts_u2l_during_by_size_group_nb_sum
+		global lipids_ff_contacts_u2l_during_by_size_group_nb_sum, lipids_ff_contacts_u2l_outside_by_size_group_nb_sum
 		lipids_ff_contacts_u2l_during_by_size_group_nb_sum = np.sum(lipids_ff_contacts_u2l_during_tot_nb_by_size_group.values(), axis = 0)
 		lipids_ff_contacts_u2l_outside_by_size_group_nb_sum = np.sum(lipids_ff_contacts_u2l_outside_tot_nb_by_size_group.values(), axis = 0)
 		lipids_ff_contacts_u2l_during_by_size_group_nb_sum = lipids_ff_contacts_u2l_during_by_size_group_nb_sum / float(np.sum(lipids_ff_contacts_u2l_during_by_size_group_nb_sum)) * 100
 		lipids_ff_contacts_u2l_outside_by_size_group_nb_sum = lipids_ff_contacts_u2l_outside_by_size_group_nb_sum / float(np.sum(lipids_ff_contacts_u2l_outside_by_size_group_nb_sum)) * 100
-		global lipids_ff_contacts_l2u_during_by_size_group_nb_sum
+		global lipids_ff_contacts_l2u_during_by_size_group_nb_sum, lipids_ff_contacts_l2u_outside_by_size_group_nb_sum
 		lipids_ff_contacts_l2u_during_by_size_group_nb_sum = np.sum(lipids_ff_contacts_l2u_during_tot_nb_by_size_group.values(), axis = 0)
 		lipids_ff_contacts_l2u_outside_by_size_group_nb_sum = np.sum(lipids_ff_contacts_l2u_outside_tot_nb_by_size_group.values(), axis = 0)
 		lipids_ff_contacts_l2u_during_by_size_group_nb_sum = lipids_ff_contacts_l2u_during_by_size_group_nb_sum / float(np.sum(lipids_ff_contacts_l2u_during_by_size_group_nb_sum)) * 100
