@@ -1,5 +1,7 @@
 # ff_contacts
-Python script to calculate contacts between flip-flopping lipids and other beads in the system
+Python script to calculate contacts between flip-flopping lipids and other beads in the system.
+To print the help below:
+```python ff_contacts.py --help```
 
 ###DESCRIPTION
 
