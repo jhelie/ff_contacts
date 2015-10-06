@@ -17,9 +17,8 @@ parser = argparse.ArgumentParser(prog='ff_contacts', usage='', add_help=False, f
 '''
 **********************************************
 v''' + version_nb + '''
-author: Jean Helie (jean.helie@bioch.ox.ac.uk)
+author: Jean Helie (jean.helie@gmail.com)
 git: https://github.com/jhelie/ff_contacts
-DOI: 
 **********************************************
 
 [ DESCRIPTION ]
