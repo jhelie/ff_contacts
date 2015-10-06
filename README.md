@@ -3,8 +3,8 @@ Python script to calculate contacts between flip-flopping lipids and other beads
 To print the help below:
 ```python ff_contacts.py --help```
 
-###DESCRIPTION
-
+```
+[ DESCRIPTION ]
 
 This script produces contact statistics between flipflopping lipids and transmembrane
 protein clusters.
@@ -22,7 +22,7 @@ This script produced 2 types of ouptus::
  -> contact statistics between flip-flopping lipids and TM clusters
  -> with --profile: distribution profile of those contacts along the local bilayer normal
 
-#####Detection of transmembrane protein clusters
+Detection of transmembrane protein clusters
 -------------------------------------------
 Two clustering algorithms can be used to identify protein clusters.
 ->Connectivity based (relies on networkX module):
@@ -48,7 +48,7 @@ lipid headgroup neighbours to the cluster particles are all within the same leaf
 In addition to the sizes identified, size groups can be defined - see note 4(c).
 
 
-###REQUIREMENTS
+[ REQUIREMENTS ]
 
 The following python modules are needed :
  - MDAnalysis
@@ -57,7 +57,7 @@ The following python modules are needed :
  - sklearn (if --algorithm set to 'density')
 
 
-###NOTES
+[ NOTES ]
 
 1. The types of contacts to take into account must be specified via --contacts. All
    unecessary particles (eg water particles and lipids tails) should be removed from
@@ -149,8 +149,8 @@ The following python modules are needed :
     coordinate matrix.
 
 
-###USAGE
-```	
+[ USAGE ]
+	
 Option	      Default  	Description                    
 -----------------------------------------------------
 -f			: structure file [.gro] (required)
