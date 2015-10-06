@@ -148,7 +148,7 @@ The following python modules are needed :
 
 
 ###USAGE
-'''	
+```	
 Option	      Default  	Description                    
 -----------------------------------------------------
 -f			: structure file [.gro] (required)
@@ -187,4 +187,4 @@ Other options
 -----------------------------------------------------
 --version		: show version number and exit
 -h, --help		: show this menu and exit
-'''
+```
